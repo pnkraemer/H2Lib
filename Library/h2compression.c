@@ -91,6 +91,40 @@ compress_h2matrix_h2matrix(pch2matrix G, bool rbortho, bool cbortho,
   return Gp;
 }
 
+ph2matrix
+compress_symmetric_h2matrix_h2matrix(pch2matrix G, bool rbortho,
+				     pctruncmode tm, real eps)
+{
+  pclusteroperator rbw;
+  pclusteroperator rlw;
+  pclusterbasis rb;
+  pclusteroperator ro;
+  ph2matrix Gp;
+
+  rbw = 0;
+  if (!rbortho) {
+    rbw = build_from_clusterbasis_clusteroperator(G->rb);
+    weight_clusterbasis_clusteroperator(G->rb, rbw);
+  }
+
+  rlw = build_from_clusterbasis_clusteroperator(G->rb);
+
+  rowweights_h2matrix(G, rbw, rbw, tm, rlw);
+
+  rb = clonestructure_clusterbasis(G->rb);
+  ro = build_from_clusterbasis_clusteroperator(G->rb);
+  truncate_clusterbasis(G->rb, 0, rlw, tm, eps, rb, ro);
+
+  Gp = build_projected_h2matrix(G, rb, ro, rb, ro);
+
+  del_clusteroperator(ro);
+  del_clusteroperator(rlw);
+  if (rbw)
+    del_clusteroperator(rbw);
+
+  return Gp;
+}
+
 /* ------------------------------------------------------------
  * Compute local and total weights for H^2-matrices
  * ------------------------------------------------------------ */
@@ -106,6 +140,97 @@ struct _weightsdata {
   pctruncmode tm;
   bool      Gtrans;
 };
+
+
+static    real
+norm2_fast_uniform(pcuniform u, pcclusteroperator rw, pcclusteroperator cw)
+{
+  amatrix   tmp1, tmp2;
+  pamatrix  ur, urc;
+  real      norm;
+
+  if (rw) {
+    if (cw) {
+      ur = init_amatrix(&tmp1, rw->krow, u->cb->k);
+      urc = init_amatrix(&tmp2, rw->krow, cw->krow);
+
+      clear_amatrix(ur);
+      addmul_amatrix(1.0, false, &rw->C, false, &u->S, ur);
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, ur, true, &cw->C, urc);
+
+      uninit_amatrix(ur);
+    }
+    else {
+      urc = init_amatrix(&tmp2, rw->krow, u->cb->k);
+
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, &rw->C, false, &u->S, urc);
+    }
+  }
+  else {
+    if (cw) {
+      urc = init_amatrix(&tmp2, u->rb->k, cw->krow);
+
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, &u->S, true, &cw->C, urc);
+    }
+    else
+      urc = (pamatrix) &u->S;
+  }
+
+  norm = norm2_amatrix(urc);
+
+  if (urc != &u->S)
+    uninit_amatrix(urc);
+
+  return norm;
+}
+
+static    real
+normfrob_fast_uniform(pcuniform u, pcclusteroperator rw, pcclusteroperator cw)
+{
+  amatrix   tmp1, tmp2;
+  pamatrix  ur, urc;
+  real      norm;
+
+  if (rw) {
+    if (cw) {
+      ur = init_amatrix(&tmp1, rw->krow, u->cb->k);
+      urc = init_amatrix(&tmp2, rw->krow, cw->krow);
+
+      clear_amatrix(ur);
+      addmul_amatrix(1.0, false, &rw->C, false, &u->S, ur);
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, ur, true, &cw->C, urc);
+
+      uninit_amatrix(ur);
+    }
+    else {
+      urc = init_amatrix(&tmp2, rw->krow, u->cb->k);
+
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, &rw->C, false, &u->S, urc);
+    }
+  }
+  else {
+    if (cw) {
+      urc = init_amatrix(&tmp2, u->rb->k, cw->krow);
+
+      clear_amatrix(urc);
+      addmul_amatrix(1.0, false, &u->S, true, &cw->C, urc);
+    }
+    else
+      urc = (pamatrix) &u->S;
+  }
+
+  norm = normfrob_amatrix(urc);
+
+  if (urc != &u->S)
+    uninit_amatrix(urc);
+
+  return norm;
+}
 
 static void
 localweights1(pccluster t, uint tname, uint pardepth,
@@ -3962,9 +4087,12 @@ build_projected_amatrix_h2matrix(pcamatrix G, pcblock b,
   pclusterbasis rb1, cb1;
   pccluster rc, cc;
   const uint *ridx, *cidx;
-  uint      rsize, csize;
-  uint      rsons, csons;
-  uint      i, j;
+//  uint      rsize, csize;
+  longindex      rsize, csize;
+//uint      rsons, csons;
+  longindex      rsons, csons;
+//  uint      i, j;
+  longindex      i, j;
 
   if (b->son) {
     rsons = b->rsons;
@@ -4012,6 +4140,7 @@ build_projected_amatrix_h2matrix(pcamatrix G, pcblock b,
 
     const longindex fld = f->ld;
     const longindex Gld = G->ld;
+
     for (j = 0; j < csize; j++)
       for (i = 0; i < rsize; i++)
 	f->a[i + j * fld] = G->a[ridx[i] + cidx[j] * Gld];

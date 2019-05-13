@@ -139,13 +139,10 @@ PROGRAMS_tests := \
 # ------------------------------------------------------------
 
 SOURCES_examples = \
-	Examples/example_dh2matrix.c \
-	Examples/example_visualize.c \
-	Examples/example_amatrix_bem3d.c \
-	Examples/example_hmatrix_bem3d.c \
-	Examples/example_h2matrix_bem3d.c\
-	Examples/example_fem_p1_harith.c\
-	Examples/example_fem_rt0_harith.c
+    rbf_neu/gmres_tps_sphere.c \
+    rbf_neu/gmres_tps_square.c \
+    rbf_neu/gmres_matern_square.c \
+
 
 OBJECTS_examples = \
 	$(SOURCES_examples:.c=.o)

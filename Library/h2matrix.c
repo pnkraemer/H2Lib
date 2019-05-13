@@ -1821,7 +1821,8 @@ collectdense_h2matrix(pcamatrix a, pcclusterbasis rb, pcclusterbasis cb,
   amatrix   tmp1, tmp2;
   pamatrix  s1, s2;
   pccluster row, col;
-  uint      i, j;
+//  uint      i, j;
+  longindex      i, j;
 
   assert(s->rows == rb->k);
   assert(s->cols == cb->k);
@@ -1881,10 +1882,13 @@ collectdense_h2matrix(pcamatrix a, pcclusterbasis rb, pcclusterbasis cb,
 
       s2 = init_amatrix(&tmp2, row->size, col->size);
 
-      for (j = 0; j < col->size; j++)
-	for (i = 0; i < row->size; i++)
-	  s2->a[i + j * s2->ld] = a->a[row->idx[i] + col->idx[j] * a->ld];
-
+      for (j = 0; j < col->size; j++) {
+        for (i = 0; i < row->size; i++){
+            const longindex ald = a->ld;
+            const longindex s2ld = s->ld;
+            s2->a[i + j * s2ld] = a->a[row->idx[i] + col->idx[j] *ald];
+        }
+      }
       addmul_amatrix(1.0, true, &rb->V, false, s2, s1);
 
       addmul_amatrix(1.0, false, s1, false, &cb->V, s);
