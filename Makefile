@@ -142,8 +142,8 @@ SOURCES_examples = \
     rbf_neu/gmres_tps_sphere.c \
     rbf_neu/gmres_tps_square.c \
     rbf_neu/gmres_matern_square.c \
-    rbf_neu/kernMinimalLU.c \
-    rbf_neu/sparseGridThesis.c \
+    rbf_neu/lu_error_comp.c \
+    rbf_neu/selection_hyperparam.c \
 
 
 OBJECTS_examples = \
