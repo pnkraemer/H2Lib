@@ -18,25 +18,6 @@ static uint active_amatrix = 0;
  * ------------------------------------------------------------ */
 
 pamatrix
-init_amatrix2(pamatrix a, longindex rows, longindex cols)
-{
-  assert(a != NULL);
-
-  a->a = (rows > 0 && cols > 0 ? allocmatrix(rows, cols) : NULL);
-  a->ld = rows;
-  a->rows = rows;
-  a->cols = cols;
-  a->owner = NULL;
-
-#ifdef USE_OPENMP
-#pragma omp atomic
-#endif
-  active_amatrix++;
-
-  return a;
-}
-
-pamatrix
 init_amatrix(pamatrix a, uint rows, uint cols)
 {
   assert(a != NULL);
@@ -181,18 +162,6 @@ new_amatrix(uint rows, uint cols)
   a = (pamatrix) allocmem(sizeof(amatrix));
 
   init_amatrix(a, rows, cols);
-
-  return a;
-}
-
-pamatrix
-new_amatrix2(longindex rows, longindex cols)
-{
-  pamatrix  a;
-
-  a = (pamatrix) allocmem(sizeof(amatrix));
-
-  init_amatrix2(a, rows, cols);
 
   return a;
 }

@@ -359,4 +359,15 @@ ph2matrix makeH2Mat(pamatrix kernelMtrx, pblock blockTree, HPar *hPar) {
 	return h2KernelMtrx;
 }
 
+ph2matrix makeH2Matfrob(pamatrix kernelMtrx, pblock blockTree, HPar *hPar) {
+	real truncAcc = hPar->truncAcc;
+
+	ptruncmode truncMode = new_relfrob_truncmode();
+	ph2matrix h2KernelMtrx = compress_amatrix_h2matrix(kernelMtrx, blockTree, truncMode, truncAcc);
+
+	del_truncmode(truncMode);
+
+	return h2KernelMtrx;
+}
+
 #endif

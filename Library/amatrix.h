@@ -74,21 +74,6 @@ struct _amatrix {
 HEADER_PREFIX pamatrix
 init_amatrix(pamatrix a, uint rows, uint cols);
 
-
-/** @brief Initialize an @ref amatrix object.
- *
- *  Sets up the components of the object and allocates storage for
- *  the coefficient array.
- *
- *  @remark Should always be matched by a call to @ref uninit_amatrix.
- *
- *  @param a Object to be initialized.
- *  @param rows Number of rows.
- *  @param cols Number of columns.
- *  @returns Initialized @ref amatrix object. */
-HEADER_PREFIX pamatrix
-init_amatrix2(pamatrix a, longindex rows, longindex cols);
-
 /** @brief Initialize an @ref amatrix object to represent a submatrix.
  *
  *  Sets up the components of the object and uses part of the storage
@@ -194,9 +179,6 @@ uninit_amatrix(pamatrix a);
  *  @returns New @ref amatrix object. */
 HEADER_PREFIX pamatrix
 new_amatrix(uint rows, uint cols);
-
-HEADER_PREFIX pamatrix
-new_amatrix2(longindex rows, longindex cols);
 
 /** @brief Create a new @ref amatrix object representing a submatrix.
  *

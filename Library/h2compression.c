@@ -4087,12 +4087,9 @@ build_projected_amatrix_h2matrix(pcamatrix G, pcblock b,
   pclusterbasis rb1, cb1;
   pccluster rc, cc;
   const uint *ridx, *cidx;
-//  uint      rsize, csize;
-  longindex      rsize, csize;
-//uint      rsons, csons;
-  longindex      rsons, csons;
-//  uint      i, j;
-  longindex      i, j;
+  uint      rsize, csize;
+  uint      rsons, csons;
+  uint      i, j;
 
   if (b->son) {
     rsons = b->rsons;
@@ -4137,10 +4134,8 @@ build_projected_amatrix_h2matrix(pcamatrix G, pcblock b,
 
     assert(h2->f->rows == rc->size);
     assert(h2->f->cols == cc->size);
-
     const longindex fld = f->ld;
     const longindex Gld = G->ld;
-
     for (j = 0; j < csize; j++)
       for (i = 0; i < rsize; i++)
 	f->a[i + j * fld] = G->a[ridx[i] + cidx[j] * Gld];
