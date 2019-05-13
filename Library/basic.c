@@ -513,16 +513,13 @@ real
 stop_stopwatch(pstopwatch sw)
 {
 #ifdef WIN32
-  printf("\nWIN3222222\n");
   sw->current = timeGetTime();
   return (sw->current - sw->start) * 0.001;
 #else
 #ifdef USE_OPENMP
-  printf("\nOPEN MPPPPPP\n");
   sw->current = omp_get_wtime();
   return (sw->current - sw->start);
 #else
-  printf("\nNEITHERRRRRR\n");
   times(&sw->current);
   return (sw->current.tms_utime + sw->current.tms_stime - sw->start.tms_utime
 	  - sw->start.tms_stime) / sw->clk_tck;

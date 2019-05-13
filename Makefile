@@ -142,6 +142,7 @@ SOURCES_examples = \
     rbf_neu/gmres_tps_sphere.c \
     rbf_neu/gmres_tps_square.c \
     rbf_neu/gmres_matern_square.c \
+    rbf_neu/LU_comp_A_H2.c \
 
 
 OBJECTS_examples = \
