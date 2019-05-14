@@ -1,3 +1,10 @@
+/*
+NAME: 'gmres_tps_sphere.c'
+
+PURPOSE: Simulations for Example 7.3
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
 
 #include <stdio.h>
 #include <stdlib.h>   	// für rand
@@ -192,9 +199,9 @@ int main(int argc, char *argv[]){
     h2matrixandamatrixandprecon *H2P = malloc(sizeof(h2matrixandamatrixandprecon));
     amatrixandamatrixandprecon *AmP = malloc(sizeof(amatrixandamatrixandprecon));
     time_t start_kernel, end_kernel, start_sparse, end_sparse, start_h2, end_h2, start_gmres_a, end_gmres_a,start_gmres_a_noprecon,  end_gmres_a_noprecon, start_gmres_h2, end_gmres_h2;
-    time_t start_all, end_all;
-    
+    time_t start_all, end_all;    
     start_all = time(NULL);
+
     /* LOAD FIBONACCIPOINTS*/
     pclustergeometry clGeom = new_clustergeometry(3, N + 4);
     make_fibonaccipoints(clGeom);
@@ -330,6 +337,7 @@ int main(int argc, char *argv[]){
     free(AmP);
     end_all = time(NULL) - start_all;
     printf("\nStopwatch all the rest:\n\tall \t= %.2f s\n\tergo: \t~ %.2f s for all the other stuff\n\n", (double)end_all, (double)(end_all - end_kernel - end_h2 - end_sparse - end_gmres_a - end_gmres_h2));
+    
     return 0;
 
 }

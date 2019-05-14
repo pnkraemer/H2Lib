@@ -1,13 +1,19 @@
+/*
+NAME: 'makegeometry.h'
+
+PURPOSE: Construction of a few types of mesh
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
+
 #include "../Library/tri2d.h"   // 
 
 pclustergeometry newClgeom_mesh2d(uint numRef) {
 	
 	/* BUILD MESH */
 	ptri2d   *meshHierarchy = (ptri2d *) allocmem((size_t) sizeof(ptri2d) * (numRef + 1));
-	meshHierarchy[0] = new_unitsquare_tri2d();	/* Set domain */
-	//meshHierarchy[0] = new_unitcircle_tri2d();
-	//meshHierarchy[0] = new_lshape_tri2d();
-	for (uint idx = 0; idx < numRef; idx++) {	/* Mesh refinements */
+	meshHierarchy[0] = new_unitsquare_tri2d();	
+	for (uint idx = 0; idx < numRef; idx++) {	
 		meshHierarchy[idx + 1] = refine_tri2d(meshHierarchy[idx], NULL);
 	}
 	uint numPts = meshHierarchy[numRef]->vertices;

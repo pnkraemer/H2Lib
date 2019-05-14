@@ -1,3 +1,11 @@
+/*
+NAME: 'riley.h'
+
+PURPOSE: Auxiliary functions related to Riley's algorithm 
+for H2-Matrices (mostly depreciated)
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
 
 #include "helpfcts.h"
 

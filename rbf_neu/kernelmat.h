@@ -1,3 +1,10 @@
+/*
+NAME: 'kernelmat.h'
+
+PURPOSE: Auxiliary functions to assemble kernel matrices
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
 
 #ifndef KERNELMAT_H_
 #define KERNELMAT_H_
@@ -16,17 +23,14 @@ real expKernel(real coord){
 
 
 real maternKernel(real coord){
-//	coord *= 20.0;
 	return (1+ sqrt(3) * coord  ) * exp(- sqrt(3) * coord);
 }
 
 real maternKernel_15(real coord){
-//	coord *= 20.0;
 	return (1+ sqrt(3) * coord  ) * exp(- sqrt(3) * coord);
 }
 
 real tpsKernel(real coord){
-//	coord *= 20.0;
     if(coord > 0.0){
         return coord * log(coord);
     }
@@ -37,7 +41,6 @@ real tpsKernel(real coord){
 
 
 real maternKernel_25(real coord){
-//	coord *= 20.0;
 	return (1 + sqrt(5) * coord + 5.0 * coord * coord/3.0  ) * exp(- sqrt(5) * coord);
 }
 
@@ -123,11 +126,6 @@ pamatrix new_kernelamatrix_tpssphere(clustergeometry *clGeom1, clustergeometry *
         setentry_amatrix(kernelMtrx, i, numPts2kurz + 2, clGeom1->x[i][1]);
         setentry_amatrix(kernelMtrx, i, numPts2kurz + 3, clGeom1->x[i][2]);
 
-/*        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz))] = 1.0;
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 1))] = clGeom1->x[i][0];
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 2))] = clGeom1->x[i][1];
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 3))] = clGeom1->x[i][2];
-*/
 		freemem(X);
 	}
 	
@@ -136,12 +134,6 @@ pamatrix new_kernelamatrix_tpssphere(clustergeometry *clGeom1, clustergeometry *
         setentry_amatrix(kernelMtrx, numPts1kurz + 1, idx, clGeom2->x[idx][0]);
         setentry_amatrix(kernelMtrx, numPts1kurz + 2, idx, clGeom2->x[idx][1]);
         setentry_amatrix(kernelMtrx, numPts1kurz + 3, idx, clGeom2->x[idx][2]);
-/*
-        	kernelMtrx->a[(size_t)((numPts1kurz) + (kernelMtrx->ld) * idx)] = 1.0;
-        	kernelMtrx->a[(size_t)((numPts1kurz + 1) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][0];
-       	 	kernelMtrx->a[(size_t)((numPts1kurz + 2) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][1];
-        	kernelMtrx->a[(size_t)((numPts1kurz + 3) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][2];
-	*/
     }
 	return kernelMtrx;
 }
@@ -192,11 +184,6 @@ pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, clustergeometry *
         setentry_amatrix(kernelMtrx, i, numPts2kurz + 1, clGeom1->x[i][0]);
         setentry_amatrix(kernelMtrx, i, numPts2kurz + 2, clGeom1->x[i][1]);
 
-/*        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz))] = 1.0;
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 1))] = clGeom1->x[i][0];
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 2))] = clGeom1->x[i][1];
-        kernelMtrx->a[(size_t)(i + (kernelMtrx->ld) * (numPts2kurz + 3))] = clGeom1->x[i][2];
-*/
 		freemem(X);
 	}
 	
@@ -204,12 +191,6 @@ pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, clustergeometry *
         setentry_amatrix(kernelMtrx, numPts1kurz, idx, 1.0);
         setentry_amatrix(kernelMtrx, numPts1kurz + 1, idx, clGeom2->x[idx][0]);
         setentry_amatrix(kernelMtrx, numPts1kurz + 2, idx, clGeom2->x[idx][1]);
-/*
-        	kernelMtrx->a[(size_t)((numPts1kurz) + (kernelMtrx->ld) * idx)] = 1.0;
-        	kernelMtrx->a[(size_t)((numPts1kurz + 1) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][0];
-       	 	kernelMtrx->a[(size_t)((numPts1kurz + 2) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][1];
-        	kernelMtrx->a[(size_t)((numPts1kurz + 3) + (kernelMtrx->ld) * idx)] = clGeom2->x[idx][2];
-	*/
     }
 	return kernelMtrx;
 }

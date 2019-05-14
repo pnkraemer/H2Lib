@@ -1,15 +1,9 @@
 /*
-NAME: 'kernMinimalLU.c'
+NAME: 'lu_error_comp.c'
 
-PURPOSE: Provide a minimal example for LU decomposition 
-of kernel matrices using H2 compression
+PURPOSE: Simulations for Example 7.2
 
-DESCRIPTION: We construct a full kernel matrix, 
-compress it into an H-matrix, compute the LU 
-decompositions of the H and the full matrix 
-and check the discrepancy of the solutions
-
-AUTHOR: NK
+AUTHOR: kraemer@ins.uni-bonn.de
 */
 
 
@@ -38,16 +32,11 @@ int main(int argc, char *argv[]){
 	uint numPts, dim, leafSize;
 	real truncAcc, admPar, shiftPar;
 	numPts = atoi(argv[1]);
-	//dim = askforint("In wie vielen Dimensionen?", "zahl", 1);
-	//leafSize = askforint("Wie groß sollen die klein(st)en Blätter sein?", "zahl", 8);
 	leafSize = 12;
 	truncAcc = 1e-30;
 	shiftPar = atof(argv[2]);
 	dim = 1;
-	//truncAcc = askforreal("Welche (relative) Komprimierungsgenauigkeit?", "zahl", 1e-16);
-	//admPar  = askforreal("Welchen Zulässigkeitsparameter?", "zahl", 1.0);
 	admPar = 1.0;
-	//shiftPar  = askforreal("Welchen Shiftparameter sigma für (K+sigma I)?", "zahl", 0.1);
 	real luAcc = 1e-16;
 
 
@@ -73,7 +62,6 @@ int main(int argc, char *argv[]){
 	ptruncmode truncMode = new_truncmode();
 	ph2matrix h2KernelMtrx = compress_amatrix_h2matrix(kernelMtrx, blockTree, truncMode, truncAcc);
 	phmatrix hKernelMtrx = convert_h2matrix_hmatrix(h2KernelMtrx);
-//    print_amatrix(kernelMtrx);
 
 
 
@@ -90,10 +78,6 @@ int main(int argc, char *argv[]){
 	rhsVecH->v[0] = 1.0;
 	lrdecomp_hmatrix(hKernelMtrx, 0, luAcc);
 	lrsolve_hmatrix_avector(0, hKernelMtrx, rhsVecH);
-
-//    print_avector(rhsVecFull);
-//    print_avector(rhsVecH);
-
 
 	/* CHECK ERROR OF SOLUTIONS */
 	pavector diffOfSols = new_zero_avector(numPts);

@@ -1,3 +1,10 @@
+/*
+NAME: 'gmres_mater_square.c'
+
+PURPOSE: Simulations for Example 7.5 and Table 7.4
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
 
 #include <stdio.h>
 #include <stdlib.h>   	// für rand
@@ -207,9 +214,9 @@ int main(int argc, char *argv[]){
     time_t start_kernel, end_kernel, start_sparse, end_sparse, start_h2, end_h2, start_gmres_a, end_gmres_a,start_gmres_a_noprecon,  end_gmres_a_noprecon, start_gmres_h2, end_gmres_h2;
     time_t start_all, end_all;
     start_all = time(NULL);
+
     /* LOAD FIBONACCIPOINTS*/
     pclustergeometry clGeom = new_clustergeometry(2, N);
-    //make_latticepoints(clGeom, 0);
 
     /* MAKE RHS */
     pavector rhsVec = new_zero_avector(N);
@@ -227,19 +234,11 @@ int main(int argc, char *argv[]){
     sz_sparse = getsize_sparsematrix(H2P->p);
     end_sparse = time(NULL) - start_sparse;
     AmP->p = make_preconditioner_sparse(preconVals, preconRowIdx, preconColIdx, N, n);
-//    for(uint i = 0; i < clGeom->nidx; i++){
-//        printf("(%.2f, %.2f), ", clGeom->x[i][0], clGeom->x[i][1]);
-//    }
-    
 
     /* LOAD H2-MATRIX*/
     start_kernel = time(NULL);
     AmP->am = new_kernelamatrix_maternsquare(clGeom, clGeom, 0.0);
-//    AmP->am = new_kernelamatrix_maternsquare(clGeom, clGeom, 0.0);
     end_kernel = time(NULL) - start_kernel;
-//    print_amatrix(AmP->am);
-//    print_avector(rhsVec);
-//    print_amatrix(AmP->am);
     start_h2 = time(NULL);
     uint* idxSet = allocuint(N);// = allocuint(N);
     for(uint i = 0; i < N; i++){
@@ -277,7 +276,6 @@ pblock blockTree = build_strict_block(clust, clust, &(h2MatPar->admPar), admissi
     if(N <= 9999){
         copy_avector(rhsVec, startVec);
         iter_lang_noprecon = solve_gmres_amatrix_avector(AmP->am, rhsVec, startVec, gmresAcc, 10000, 20);
-//    printf("\n\nalriiiiiiiighty then\n\n");
     }
 
     end_gmres_a_noprecon = time(NULL) - start_gmres_a_noprecon;

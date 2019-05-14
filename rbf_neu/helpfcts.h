@@ -1,3 +1,10 @@
+/*
+NAME: 'helpfcts.h'
+
+PURPOSE: Basic auxiliary functions
+
+AUTHOR: kraemer(at)ins.uni-bonn.de
+*/
 
 
 #ifndef HELPFCTS_H
