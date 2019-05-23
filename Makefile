@@ -79,6 +79,9 @@ H2LIB_BEM = \
 	Library/helmholtzbem3d.c \
 	Library/helmholtzoclbem3d.c
 
+H2LIB_KERN = \
+	Library/kernelmatrix.c
+
 SOURCES_libh2 := \
 	$(H2LIB_CORE0) \
 	$(H2LIB_CORE1) \
@@ -87,7 +90,8 @@ SOURCES_libh2 := \
 	$(H2LIB_DIRECTIONAL) \
 	$(H2LIB_SIMPLE) \
 	$(H2LIB_FEM) \
-	$(H2LIB_BEM)
+	$(H2LIB_BEM) \
+	$(H2LIB_KERN)
 
 EXTRA_HEADERS = \
 	Library/blas.h \
@@ -123,7 +127,8 @@ SOURCES_tests := \
 	Tests/test_tri2dp1.c\
 	Tests/test_ddcluster.c\
 	Tests/test_tri2drt0.c\
-	Tests/test_tet3drt0.c
+	Tests/test_tet3drt0.c\
+	Tests/test_kernelmatrix.c
 
 OBJECTS_tests := \
 	$(SOURCES_tests:.c=.o)
