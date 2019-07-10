@@ -48,6 +48,9 @@ struct _kernelmatrix {
   /** @brief Data for the kernel function. */
   void *data;
 
+  /** @brief Is the kernel cond. positive definite? */
+  bool cpos;
+
   /** @brief Number of points. */
   uint points;
 
@@ -86,7 +89,11 @@ creategeometry_kernelmatrix(pckernelmatrix km);
 
 HEADER_PREFIX void
 fillN_kernelmatrix(const uint *ridx, const uint *cidx, pckernelmatrix km,
-		   pamatrix N);
+       pamatrix N);
+
+HEADER_PREFIX void
+fillN_kernelmatrix2(const uint *ridx, const uint *cidx, pckernelmatrix km,
+       pamatrix N);
 
 HEADER_PREFIX void
 fillS_kernelmatrix(pccluster rc, pccluster cc,
@@ -113,6 +120,15 @@ fill_clusterbasis_kernelmatrix(pckernelmatrix km, pclusterbasis cb);
  *  @param G Matrix to be filled. */
 HEADER_PREFIX void
 fill_h2matrix_kernelmatrix(pckernelmatrix km, ph2matrix G);
+/** @} */
+
+
+/** @brief Fill a @ref h2matrix using interpolation (for cond. positive kernels)
+ *
+ *  @param km Description of the kernel matrix.
+ *  @param G Matrix to be filled. */
+HEADER_PREFIX void
+fill_h2matrix_kernelmatrix2(pckernelmatrix km, ph2matrix G);
 
 /** @} */
 

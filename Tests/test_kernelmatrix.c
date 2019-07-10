@@ -61,7 +61,7 @@ main(int argc, char **argv)
   uint m, leafsize;
   uint *idx;
   size_t sz;
-  real eta, mindiam;
+  real eta;
   real eps;
   real t_setup, norm, error;
   uint i;

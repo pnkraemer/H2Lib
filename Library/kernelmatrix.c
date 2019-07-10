@@ -29,7 +29,7 @@ new_kernelmatrix(uint dim, uint points, uint m)
   /* Empty kernel callback function */
   km->kernel = 0;
   km->data = 0;
-
+  
   /* Initialize arrays for point coordinates */
   km->x = (real **) allocmem(sizeof(real *) * points);
   km->x[0] = x0 = allocreal(points * dim);
@@ -87,7 +87,7 @@ creategeometry_kernelmatrix(pckernelmatrix km)
 
 void
 fillN_kernelmatrix(const uint *ridx, const uint *cidx, pckernelmatrix km,
-		   pamatrix N)
+       pamatrix N)
 {
   const real **x = (const real **) km->x;
   uint rows = N->rows;
@@ -99,24 +99,22 @@ fillN_kernelmatrix(const uint *ridx, const uint *cidx, pckernelmatrix km,
   if(ridx) {
     if(cidx) {
       for(j=0; j<cols; j++) {
-	jj = cidx[j];
+        jj = cidx[j];
 
-	for(i=0; i<rows; i++) {
-	  ii = ridx[i];
-
-	  Na[i+j*ldN] = km->kernel(x[ii], x[jj], km->data);
-	}
+        for(i=0; i<rows; i++) {
+          ii = ridx[i];
+          Na[i+j*ldN] = km->kernel(x[ii], x[jj], km->data);
+        }
       }
     }
     else {
       assert(cols <= km->points);
 
       for(j=0; j<cols; j++) {
-	for(i=0; i<rows; i++) {
-	  ii = ridx[i];
-
-	  Na[i+j*ldN] = km->kernel(x[ii], x[j], km->data);
-	}
+        for(i=0; i<rows; i++) {
+          ii = ridx[i];
+          Na[i+j*ldN] = km->kernel(x[ii], x[j], km->data);
+        }
       }
     }
   }
@@ -125,18 +123,18 @@ fillN_kernelmatrix(const uint *ridx, const uint *cidx, pckernelmatrix km,
 
     if(cidx) {
       for(j=0; j<cols; j++) {
-	jj = cidx[j];
+        jj = cidx[j];
 
-	for(i=0; i<rows; i++)
-	  Na[i+j*ldN] = km->kernel(x[i], x[jj], km->data);
+        for(i=0; i<rows; i++)
+          Na[i+j*ldN] = km->kernel(x[i], x[jj], km->data);
       }
     }
     else {
       assert(cols <= km->points);
 
       for(j=0; j<cols; j++)
-	for(i=0; i<rows; i++)
-	  Na[i+j*ldN] = km->kernel(x[i], x[j], km->data);
+        for(i=0; i<rows; i++)
+          Na[i+j*ldN] = km->kernel(x[i], x[j], km->data);
     }
   }
 }
@@ -537,7 +535,7 @@ fill_h2matrix_kernelmatrix(pckernelmatrix km, ph2matrix G)
 
     for(j=0; j<csons; j++)
       for(i=0; i<rsons; i++)
-	fill_h2matrix_kernelmatrix(km, G->son[i+j*rsons]);
+  fill_h2matrix_kernelmatrix(km, G->son[i+j*rsons]);
   }
   else if(G->u)
     fillS_kernelmatrix(G->rb->t, G->cb->t, km, &G->u->S);
@@ -546,3 +544,4 @@ fill_h2matrix_kernelmatrix(pckernelmatrix km, ph2matrix G)
     fillN_kernelmatrix(G->rb->t->idx, G->cb->t->idx, km, G->f);
   }
 }
+

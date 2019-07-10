@@ -269,29 +269,29 @@ build_strict_block(pcluster rc, pcluster cc, void *eta, admissible admis)
     if (rc->sons == 0) {
       /* inadmissible leaf */
       if (cc->sons == 0) {
-	rsons = 0;
-	csons = 0;
-	b = new_block(rc, cc, a, rsons, csons);
+	      rsons = 0;
+	      csons = 0;
+	      b = new_block(rc, cc, a, rsons, csons);
       }
       /* no leaf */
       else {
-	rsons = 1;
-	csons = cc->sons;
-	b = new_block(rc, cc, a, rsons, csons);
-	for (j = 0; j < csons; j++) {
-	  b->son[j] = build_strict_block(rc, cc->son[j], eta, admis);
-	}
+	      rsons = 1;
+	      csons = cc->sons;
+	      b = new_block(rc, cc, a, rsons, csons);
+	      for (j = 0; j < csons; j++) {
+	        b->son[j] = build_strict_block(rc, cc->son[j], eta, admis);
+	      }
       }
     }
     else {
       /* no leaf */
       if (cc->sons == 0) {
-	rsons = rc->sons;
-	csons = 1;
-	b = new_block(rc, cc, a, rsons, csons);
-	for (i = 0; i < rsons; i++) {
-	  b->son[i] = build_strict_block(rc->son[i], cc, eta, admis);
-	}
+	      rsons = rc->sons;
+	      csons = 1;
+	      b = new_block(rc, cc, a, rsons, csons);
+	        for (i = 0; i < rsons; i++) {
+	          b->son[i] = build_strict_block(rc->son[i], cc, eta, admis);
+	        }
       }
       /* no leaf */
       else {

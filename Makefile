@@ -53,7 +53,6 @@ H2LIB_DIRECTIONAL = \
 	Library/dh2compression.c \
 	Library/dclusteroperator.c
 
-H2LIB_SIMPLE =
 
 H2LIB_FEM = \
 	Library/tri2d.c \
@@ -80,7 +79,9 @@ H2LIB_BEM = \
 	Library/helmholtzoclbem3d.c
 
 H2LIB_KERN = \
-	Library/kernelmatrix.c
+	Library/kernelfcts.c \
+	Library/kernelmatrix.c \
+	Library/addon_kernelmatrix.c
 
 SOURCES_libh2 := \
 	$(H2LIB_CORE0) \
@@ -144,11 +145,12 @@ PROGRAMS_tests := \
 # ------------------------------------------------------------
 
 SOURCES_examples = \
-    rbf_neu/gmres_tps_sphere.c \
-    rbf_neu/gmres_tps_square.c \
-    rbf_neu/gmres_matern_square.c \
-    rbf_neu/lu_error_comp.c \
-    rbf_neu/selection_hyperparam.c \
+#    rbf_neu/gmres_tps_sphere.c \
+#    rbf_neu/gmres_tps_square.c \
+ #   rbf_neu/gmres_matern_square.c \
+  #  rbf_neu/lu_error_comp.c \
+   # rbf_neu/selection_hyperparam.c \
+    lshape/simple_tps_mvm.c \
 
 
 OBJECTS_examples = \
