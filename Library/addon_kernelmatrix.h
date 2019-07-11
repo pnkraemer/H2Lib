@@ -11,14 +11,11 @@
 #include "settings.h"
 #include "kernelmatrix.h"
 
-HEADER_PREFIX pamatrix 
-assemble_pblock(pckernelmatrix km);
-
-HEADER_PREFIX pamatrix 
-assemble_pblock_trans(pckernelmatrix km);
+HEADER_PREFIX void 
+assemble_pblock(pckernelmatrix km, pamatrix mtrx);
 
 HEADER_PREFIX void 
-addeval_cond_kernelh2matrix(field alpha, ph2matrix h2km, pamatrix pb, pavector src, pavector trg);
+assemble_pblock_trans(pckernelmatrix km, pamatrix mtrx);
 
 HEADER_PREFIX void 
 assemble_big_kernelmatrix(pkernelmatrix km, pamatrix mat);

@@ -30,6 +30,7 @@ H2LIB_CORE2 = \
 	Library/h2matrix.c \
 	Library/rkmatrix.c \
 	Library/hmatrix.c \
+	Library/addon_krylovsolvers.c \
 	Library/krylovsolvers.c
 
 H2LIB_CORE3 = \
@@ -145,12 +146,16 @@ PROGRAMS_tests := \
 # ------------------------------------------------------------
 
 SOURCES_examples = \
+    lshape/simple_tps_mvm_1d.c \
+    lshape/simple_tps_mvm_2d.c \
+    lshape/tps_mvm_ptsets.c \
+    lshape/gmres_tps_precon.c \
+    lshape/lshape_gmres.c \
 #    rbf_neu/gmres_tps_sphere.c \
 #    rbf_neu/gmres_tps_square.c \
- #   rbf_neu/gmres_matern_square.c \
-  #  rbf_neu/lu_error_comp.c \
-   # rbf_neu/selection_hyperparam.c \
-    lshape/simple_tps_mvm.c \
+#    rbf_neu/gmres_matern_square.c \
+#    rbf_neu/lu_error_comp.c \
+#    rbf_neu/selection_hyperparam.c \
 
 
 OBJECTS_examples = \

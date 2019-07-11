@@ -13,11 +13,19 @@
 
 
 HEADER_PREFIX field
-exp_kernel_1d(const real *xx, const real *yy, void *data);
-
-HEADER_PREFIX field
 tps_kernel_1d(const real *xx, const real *yy, void *data);
 
+
+HEADER_PREFIX field
+exp_kernel_1d(const real *xx, const real *yy, void *data);
+
+
+
+HEADER_PREFIX field
+tps_kernel_2d(const real *xx, const real *yy, void *data);
+
+HEADER_PREFIX field
+exp_kernel_2d(const real *xx, const real *yy, void *data);
 
 
 
