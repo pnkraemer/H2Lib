@@ -6,17 +6,11 @@
 #include "matrixnorms.h"
 #include "parameters.h"
 #include "kernelmatrix.h"
-
 #include "kernelfcts.h"
 #include "addon_kernelmatrix.h"
 #include "addon_krylovsolvers.h"
-
 #include "../lshape/auxiliary.h"
-
-#include "tri2d.h"      /* 2-dimensional mesh */
-
-
-
+#include "tri2d.h" 
 
 
 
@@ -33,8 +27,6 @@ real tpsKernel(real coord){
         return 0;
     }
 }
-
-
 
 
 void
@@ -58,26 +50,6 @@ make_rhs(pavector rhsvec, pclustergeometry cg)
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 static void 
 loadfromtxt_mesh(pkernelmatrix km, bool print_yes)
 {
@@ -86,7 +58,7 @@ loadfromtxt_mesh(pkernelmatrix km, bool print_yes)
     FILE *meshfile;
 
     points = km->points;
-    sprintf(filename, "/home/kraemer/Programmieren/H2Lib/lshape/files/lmesh_N%u.txt", points);
+    sprintf(filename, "/home/kraemer/Programmieren/H2Lib/lshape/files/mesh/lmesh_N%u.txt", points);
 
     meshfile = fopen(filename, "r");
     if(meshfile == NULL){
@@ -146,14 +118,14 @@ make_random_lshape(pclustergeometry cg, bool printyes)
 
 
 static void 
-loadfromtxt_precon_neu(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n)
+loadfromtxt_precon_lshape(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n)
 {
 
     uint numPts = preconVals->dim;
     char strVals[200], strRowIdx[200], strColIdx[200];
-    sprintf(strVals, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_lshape_tps/precon_val_N%d_n%d.txt", N, n);
-    sprintf(strRowIdx, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_lshape_tps/precon_row_N%d_n%d.txt", N, n);
-    sprintf(strColIdx, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_lshape_tps/precon_col_N%d_n%d.txt", N, n);
+    sprintf(strVals, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_val_N%d_n%d.txt", N, n);
+    sprintf(strRowIdx, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_row_N%d_n%d.txt", N, n);
+    sprintf(strColIdx, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_col_N%d_n%d.txt", N, n);
     FILE *myFileVals, *myFileColIdx, *myFileRowIdx;
     myFileVals = fopen(strVals, "r");
     myFileColIdx = fopen(strColIdx, "r");
@@ -171,7 +143,6 @@ loadfromtxt_precon_neu(pavector preconVals, pavector preconRowIdx, pavector prec
     fclose(myFileColIdx);
     fclose(myFileRowIdx);
 }
-
 
 
 
@@ -234,6 +205,7 @@ main(int argc, char **argv)
 
     pkernelmatrix       km;
     pclustergeometry    cg;
+    pclustergeometry    cgeval;
     pcluster            root;
     pblock              broot;
     pclusterbasis       cb;
@@ -251,9 +223,14 @@ main(int argc, char **argv)
                         preconcol;
     psparsematrix       precon_sp;
     pamatrix            precon_am;
+    pamatrix            kmeval;
     pamatrix            res;
     pavector            rhs,
                         x0;
+    pavector            approxvec,
+                        trueappr,
+                        trueeval;
+
 
     uint                *idx;
     uint                points;
@@ -268,17 +245,19 @@ main(int argc, char **argv)
     uint                iter;
     real                error;
     bool                print_yes;
-
+    uint                evalpoints;
+    real                currentRelError;
     /* Parameters */
     sw = new_stopwatch();
     points = atoi(argv[1]);     /* number of points*/
     n = atoi(argv[2]);          /* number of neighbours */
     m = atoi(argv[3]);          /* interpolation order */
-    lsz = 2*m*m;                /* leafsize */
-    eps = pow(10.0, -1.0 * m);  /* recompression tolerance */
-    eta = 1.0;                  /* admissibility condition */
+    lsz = 2*m*m;                /* leafsize prop. to interpolation order */
+    eps = pow(10.0, -1.0 * m);  /* recompression tolerance proportional to interpolation order */
+    eta = 1.0;                  /* generic admissibility condition */
     assert(points<24000);       /* 24000 is all one can do with 8GB of RAM*/
-    dim = 2;                    /* This script is 2D only*/
+    dim = 2;                    /* this script is 2D only*/
+    evalpoints = 10000;         /* number of points for RMSE estimate*/
 
 
 
@@ -345,7 +324,7 @@ main(int argc, char **argv)
     preconval = new_avector(points*n);
     preconrow = new_avector(points*n);
     preconcol = new_avector(points*n);
-    loadfromtxt_precon_neu(preconval, preconrow, preconcol, points, n);
+    loadfromtxt_precon_lshape(preconval, preconrow, preconcol, points, n);
     precon_sp = make_precon_sparse(preconval, preconrow, preconcol, points, n);
     precon_am = make_precon_full(preconval, preconrow, preconcol, points, n);
     res = new_zero_amatrix(points + dim + 1, points + dim + 1);
@@ -372,22 +351,9 @@ main(int argc, char **argv)
     real diff = norm2_avector(res_a) / norm2_avector(res_h2);
     printf("\t%.1e\n", diff);
 
-
-
-
-
-
-
-
-
-
-
-
-
     (void) printf("Computing GMRES\n");
     start_stopwatch(sw);
     make_rhs(rhs, cg);
-
     error = norm2_avector(rhs);
     x0 = new_zero_avector(points + dim + 1);
     iter = solve_gmres_h2precond_avector(Gh2, pb, precon_sp, rhs, x0, 1e-5, 10000, 20);
@@ -407,81 +373,26 @@ main(int argc, char **argv)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     (void) printf("Approximating RMSE");
-    uint evalpoints = 10000;
-    pclustergeometry cgeval = new_clustergeometry(2, evalpoints);
+    cgeval = new_clustergeometry(2, evalpoints);
     make_random_lshape(cgeval, 0);
-    pamatrix kmeval = new_kernelamatrix_tpssquare(cgeval, cg, 0.0);
-
-    pavector approxvec = new_zero_avector(evalpoints + dim + 1);
+    kmeval = new_kernelamatrix_tpssquare(cgeval, cg, 0.0);
+    approxvec = new_zero_avector(evalpoints + dim + 1);
     addeval_amatrix_avector(1.0, kmeval, sol, approxvec);
-    pavector trueappr = new_zero_avector(evalpoints);
+    trueappr = new_zero_avector(evalpoints);
     for(uint i = 0; i < evalpoints; i++){
         trueappr->v[i] = approxvec->v[i];
     }
-    pavector trueeval = new_zero_avector(evalpoints);
+    trueeval = new_zero_avector(evalpoints);
     for(uint i = 0; i < evalpoints; i++){
         trueeval->v[i] = interpolant(cgeval->x[i][0], cgeval->x[i][1]);
     }
     add_avector(-1.0, trueeval, trueappr);
-    real currentRelError = norm2_avector(trueappr) / sqrt((real)(trueappr->dim));
+    currentRelError = norm2_avector(trueappr) / sqrt((real)(trueappr->dim));
     printf("\n\t%.1e\n", currentRelError);
 
 
-    del_clustergeometry(cgeval);
-    del_amatrix(kmeval);
-    del_avector(approxvec);
-    del_avector(trueappr);
-    del_avector(trueeval);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*    error = norm2_avector(rhs);
+/*  error = norm2_avector(rhs);
     x0 = new_zero_avector(points + dim + 1);
     iter = solve_gmres_amatrix_avector(res, rhs, x0, 1e-5, 10000, 20);
     printf("Number of GMRES iterations: %u\n\n", iter);
@@ -499,6 +410,11 @@ main(int argc, char **argv)
     cairo_surface_destroy(surface_h2mat);
 */
 
+    del_clustergeometry(cgeval);
+    del_amatrix(kmeval);
+    del_avector(approxvec);
+    del_avector(trueappr);
+    del_avector(trueeval);
     del_avector(rhs);
     del_avector(x0);
     del_avector(sol);

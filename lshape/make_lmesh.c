@@ -55,7 +55,7 @@ main(int argc, char **argv)
 
 
     (void) printf("Saving mesh in file\n");
-    sprintf(filename, "lshape/files/lmesh_N%d.txt", numpts);
+    sprintf(filename, "lshape/files/mesh/lmesh_N%d.txt", numpts);
     fptr = fopen(filename, "w"); 
     if (fptr == NULL) 
         printf("\n\nCOULD NOT OPEN FILE!\n\n"); 
