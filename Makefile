@@ -150,6 +150,7 @@ SOURCES_examples = \
     lshape/simple_tps_mvm_2d.c \
     lshape/tps_mvm_ptsets.c \
     lshape/gmres_tps_precon.c \
+    lshape/make_lmesh.c \
     lshape/lshape_gmres.c \
 #    rbf_neu/gmres_tps_sphere.c \
 #    rbf_neu/gmres_tps_square.c \
