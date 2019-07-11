@@ -146,9 +146,6 @@ PROGRAMS_tests := \
 # ------------------------------------------------------------
 
 SOURCES_examples = \
-    lshape/simple_tps_mvm_1d.c \
-    lshape/simple_tps_mvm_2d.c \
-    lshape/gmres_tps_precon.c \
     lshape/make_lmesh.c \
     lshape/lshape_gmres.c \
 
