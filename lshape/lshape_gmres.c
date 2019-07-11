@@ -58,7 +58,7 @@ loadfromtxt_mesh(pkernelmatrix km, bool print_yes)
     FILE *meshfile;
 
     points = km->points;
-    sprintf(filename, "/home/kraemer/Programmieren/H2Lib/lshape/files/mesh/lmesh_N%u.txt", points);
+    sprintf(filename, "lshape/files/mesh/lmesh_N%u.txt", points);
 
     meshfile = fopen(filename, "r");
     if(meshfile == NULL){
@@ -123,9 +123,9 @@ loadfromtxt_precon_lshape(pavector preconVals, pavector preconRowIdx, pavector p
 
     uint numPts = preconVals->dim;
     char strVals[200], strRowIdx[200], strColIdx[200];
-    sprintf(strVals, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_val_N%d_n%d.txt", N, n);
-    sprintf(strRowIdx, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_row_N%d_n%d.txt", N, n);
-    sprintf(strColIdx, "/home/kraemer/Programmieren/H2Lib/lshape/files/precon/precon_col_N%d_n%d.txt", N, n);
+    sprintf(strVals, "lshape/files/precon/precon_val_N%d_n%d.txt", N, n);
+    sprintf(strRowIdx, "lshape/files/precon/precon_row_N%d_n%d.txt", N, n);
+    sprintf(strColIdx, "lshape/files/precon/precon_col_N%d_n%d.txt", N, n);
     FILE *myFileVals, *myFileColIdx, *myFileRowIdx;
     myFileVals = fopen(strVals, "r");
     myFileColIdx = fopen(strColIdx, "r");
