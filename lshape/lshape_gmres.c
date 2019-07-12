@@ -213,18 +213,18 @@ main(int argc, char **argv)
                         Gh2;
     pstopwatch          sw;
     ptruncmode          tm;
-    pamatrix            pb, 
-                        bigmat;
-	pavector            testvec, 
-                        res_h2, 
-                        res_a; 
+    pamatrix            pb; 
+//                      bigmat;
+//	pavector            testvec, 
+//                       res_h2, 
+//                        res_a; 
     pavector            preconval,
                         preconrow,
                         preconcol;
     psparsematrix       precon_sp;
-    pamatrix            precon_am;
+//  pamatrix            precon_am;
     pamatrix            kmeval;
-    pamatrix            res;
+//  pamatrix            res;
     pavector            rhs,
                         x0;
     pavector            approxvec,
@@ -305,7 +305,7 @@ main(int argc, char **argv)
 		t_setup, sz / 1048576.0, sz / 1024.0 / points);
 
 
-    (void) printf("Filling reference matrix\n");
+/*  (void) printf("Filling reference matrix\n");
     start_stopwatch(sw);
     bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
     assemble_big_kernelmatrix(km, bigmat);
@@ -315,7 +315,7 @@ main(int argc, char **argv)
         "\t%.1f MB\n"
         "\t%.1f KB/DoF\n",
         t_setup, sz / 1048576.0, sz / 1024.0 / points);
-    pb = new_amatrix(points, 1 + dim);
+*/  pb = new_amatrix(points, 1 + dim);
     assemble_pblock(km, pb);
 
 
@@ -326,9 +326,9 @@ main(int argc, char **argv)
     preconcol = new_avector(points*n);
     loadfromtxt_precon_lshape(preconval, preconrow, preconcol, points, n);
     precon_sp = make_precon_sparse(preconval, preconrow, preconcol, points, n);
-    precon_am = make_precon_full(preconval, preconrow, preconcol, points, n);
-    res = new_zero_amatrix(points + dim + 1, points + dim + 1);
-    addmul_amatrix(1.0, 0, bigmat, 0, precon_am, res);
+//  precon_am = make_precon_full(preconval, preconrow, preconcol, points, n);
+//  res = new_zero_amatrix(points + dim + 1, points + dim + 1);
+//  addmul_amatrix(1.0, 0, bigmat, 0, precon_am, res);
     t_setup = stop_stopwatch(sw);
     sz = getsize_sparsematrix(precon_sp);
     (void) printf("\t%.2f seconds\n"
@@ -338,21 +338,21 @@ main(int argc, char **argv)
 
 
 
-    (void) printf("Computing rel. MVM discrepancy\n");
+/*  (void) printf("Computing rel. MVM discrepancy\n");
     testvec = new_avector(points + dim + 1);
     res_h2 = new_zero_avector(points + dim + 1);
     res_a = new_zero_avector(points + dim + 1);
     random_real_avector(testvec);
-    rhs = new_zero_avector(points + 1 + dim);
     addeval_sparsematrix_avector(1.0, precon_sp, testvec, rhs);
     addeval_amatrix_avector(1.0, bigmat, rhs, res_a);
     addeval_cond_kernelh2matrix_precon(1.0, Gh2, pb, precon_sp, testvec, res_h2);
     add_avector(-1.0, res_h2, res_a);
     real diff = norm2_avector(res_a) / norm2_avector(res_h2);
     printf("\t%.1e\n", diff);
-
+*/
     (void) printf("Computing GMRES\n");
     start_stopwatch(sw);
+    rhs = new_zero_avector(points + 1 + dim);
     make_rhs(rhs, cg);
     error = norm2_avector(rhs);
     x0 = new_zero_avector(points + dim + 1);
@@ -418,17 +418,17 @@ main(int argc, char **argv)
     del_avector(rhs);
     del_avector(x0);
     del_avector(sol);
-    del_amatrix(res);
+//    del_amatrix(res);
     del_avector(preconval);
     del_avector(preconrow);
     del_avector(preconcol);
     del_sparsematrix(precon_sp);
-    del_amatrix(precon_am);
+//    del_amatrix(precon_am);
     del_amatrix(pb);
-    del_avector(testvec);
-    del_avector(res_h2);
-    del_avector(res_a);
-    del_amatrix(bigmat);
+//  del_avector(testvec);
+//  del_avector(res_h2);
+//  del_avector(res_a);
+//    del_amatrix(bigmat);
     del_kernelmatrix(km);
     del_clustergeometry(cg);
     del_cluster(root);
