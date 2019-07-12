@@ -255,7 +255,7 @@ main(int argc, char **argv)
     lsz = 2*m*m;                /* leafsize prop. to interpolation order */
     eps = pow(10.0, -1.0 * m);  /* recompression tolerance proportional to interpolation order */
     eta = 1.0;                  /* generic admissibility condition */
-    assert(points<24000);       /* 24000 is all one can do with 8GB of RAM*/
+//    assert(points<24000);       /* 24000 is all one can do with 8GB of RAM*/
     dim = 2;                    /* this script is 2D only*/
     evalpoints = 10000;         /* number of points for RMSE estimate*/
 
@@ -290,35 +290,6 @@ main(int argc, char **argv)
     t_setup = stop_stopwatch(sw);
     sz = getsize_clusterbasis(cb);
 
-
-    (void) printf("Creating, filling and recompressing H^2-matrix\n");
-    Gh1 = build_from_block_h2matrix(broot, cb, cb);
-    start_stopwatch(sw);
-    fill_h2matrix_kernelmatrix(km, Gh1);
-    tm = new_releucl_truncmode();
-    Gh2 = compress_h2matrix_h2matrix(Gh1, false, false, tm, eps);
-    t_setup = stop_stopwatch(sw);
-    sz = getsize_h2matrix(Gh2);
-    (void) printf("\t%.2f seconds\n"
-		"\t%.1f MB\n"
-		"\t%.1f KB/DoF\n",
-		t_setup, sz / 1048576.0, sz / 1024.0 / points);
-
-
-/*  (void) printf("Filling reference matrix\n");
-    start_stopwatch(sw);
-    bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
-    assemble_big_kernelmatrix(km, bigmat);
-    t_setup = stop_stopwatch(sw);
-    sz = getsize_amatrix(bigmat);
-    (void) printf("\t%.2f seconds\n"
-        "\t%.1f MB\n"
-        "\t%.1f KB/DoF\n",
-        t_setup, sz / 1048576.0, sz / 1024.0 / points);
-*/  pb = new_amatrix(points, 1 + dim);
-    assemble_pblock(km, pb);
-
-
     (void) printf("Loading preconditioner\n");
     start_stopwatch(sw);
     preconval = new_avector(points*n);
@@ -335,6 +306,37 @@ main(int argc, char **argv)
         "\t%.1f MB\n"
         "\t%.1f KB/DoF\n",
         t_setup, sz / 1048576.0, sz / 1024.0 / points);
+
+
+
+    (void) printf("Creating, filling and recompressing H^2-matrix\n");
+    Gh1 = build_from_block_h2matrix(broot, cb, cb);
+    start_stopwatch(sw);
+    fill_h2matrix_kernelmatrix(km, Gh1);
+    tm = new_releucl_truncmode();
+    Gh2 = compress_h2matrix_h2matrix(Gh1, false, false, tm, eps);
+    t_setup = stop_stopwatch(sw);
+    sz = getsize_h2matrix(Gh2);
+    (void) printf("\t%.2f seconds\n"
+		"\t%.1f MB\n"
+		"\t%.1f KB/DoF\n",
+		t_setup, sz / 1048576.0, sz / 1024.0 / points);
+	pb = new_amatrix(points, 1 + dim);
+    assemble_pblock(km, pb);
+
+
+/*  (void) printf("Filling reference matrix\n");
+    start_stopwatch(sw);
+    bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
+    assemble_big_kernelmatrix(km, bigmat);
+    t_setup = stop_stopwatch(sw);
+    sz = getsize_amatrix(bigmat);
+    (void) printf("\t%.2f seconds\n"
+        "\t%.1f MB\n"
+        "\t%.1f KB/DoF\n",
+        t_setup, sz / 1048576.0, sz / 1024.0 / points);
+*/
+
 
 
 
