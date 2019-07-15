@@ -14,6 +14,8 @@
 #include "kernelmatrix.h"
 #include "addon_kernelmatrix.h"
 #include "avector.h"
+#include <stdio.h>
+#include <string.h>
 
 
 HEADER_PREFIX void 
@@ -24,11 +26,11 @@ addeval_cond_kernelh2matrix_precon(field alpha, ph2matrix h2km, pamatrix pb, psp
 HEADER_PREFIX uint 
 solve_gmres_h2precond_avector(ph2matrix h2m, pamatrix polblock, psparsematrix spm, pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
-HEADER_PREFIX void 
-loadfromtxt_precon(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n);
-
 HEADER_PREFIX psparsematrix 
-make_precon_sparse(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n);
+loadfromtxt_precon(uint N, uint n, char *filepath);
+
+//HEADER_PREFIX psparsematrix 
+//make_precon_sparse(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n);
 
 
 

@@ -6,6 +6,9 @@
 #include "addon_kernelmatrix.h"
 #include "avector.h"
 
+#include <stdio.h>
+#include <string.h>
+
 
 static field
 findapply_givens(pfield a, pfield b)
@@ -327,57 +330,177 @@ addeval_cond_kernelh2matrix_precon(field alpha, ph2matrix h2km, pamatrix pb, psp
 
 }
 
-HEADER_PREFIX void 
-loadfromtxt_precon(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n)
+
+/*
+HEADER_PREFIX psparsematrix 
+loadfromtxt_precon(uint N, uint n, char *filepath)
 {
 
-    uint numPts = preconVals->dim;
+    real val;
+    uint colidx, rowidx;
+    uint i;
     char strVals[150], strRowIdx[150], strColIdx[150];
-    sprintf(strVals, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_txt_tps_square/preconVals_N%d_n%d.txt", N, n);
-    sprintf(strRowIdx, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_txt_tps_square/preconRowIdx_N%d_n%d.txt", N, n);
-    sprintf(strColIdx, "/home/kraemer/Programmieren/gp-emulators/lshape_simulation/precon_txt_tps_square/preconColIdx_N%d_n%d.txt", N, n);
+    char filepath_val[250], filepath_row[250], filepath_col[250];
+
+    psparsepattern sp;
+    psparsematrix spm;
+    pavector      vals;
+
+    sprintf(strVals, "precon/precon_val_N%d_n%d.txt", N, n);
+    sprintf(strRowIdx, "precon/precon_row_N%d_n%d.txt", N, n);
+    sprintf(strColIdx, "precon/precon_col_N%d_n%d.txt", N, n);
+
+    strcpy(filepath_val, filepath);
+    strcpy(filepath_row, filepath);
+    strcpy(filepath_col, filepath);
+
+    strcat(filepath_val, strVals);
+    strcat(filepath_row, strRowIdx);
+    strcat(filepath_col, strColIdx);
+
+
+    vals = new_avector(n * N);
+
     FILE *myFileVals, *myFileColIdx, *myFileRowIdx;
-    myFileVals = fopen(strVals, "r");
-    myFileColIdx = fopen(strColIdx, "r");
-    myFileRowIdx = fopen(strRowIdx, "r");
-    if(myFileVals == NULL){
+    myFileVals = fopen(filepath_val, "r");
+    myFileRowIdx = fopen(filepath_row, "r");
+    myFileColIdx = fopen(filepath_col, "r");
+    if(myFileVals == NULL || myFileColIdx == NULL || myFileColIdx == NULL){
         printf("Error reading file\n");
         exit(0);
     }
-    for(uint i = 0; i < numPts; i++){
-            fscanf(myFileVals, "%lf ", &(preconVals->v[i]));      
-            fscanf(myFileColIdx, "%lf ", &(preconColIdx->v[i]));      
-            fscanf(myFileRowIdx, "%lf ", &(preconRowIdx->v[i]));      
+
+    sp = new_sparsepattern(N + 3, N + 3);
+
+    for(uint i = 0; i < n*N; i++){
+            fscanf(myFileRowIdx, "%u ", &rowidx);      
+            fscanf(myFileColIdx, "%u ", &colidx);      
+            fscanf(myFileVals, "%u ", &(vals->v[i]));      
+                  printf("rowidx = %u, colidx = %u\n", rowidx, colidx);
+
+            addnz_sparsepattern(sp, rowidx, colidx);
     }
-    fclose(myFileVals);
     fclose(myFileColIdx);
     fclose(myFileRowIdx);
-}
+    fclose(myFileVals);
 
-HEADER_PREFIX psparsematrix 
-make_precon_sparse(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n)
-{
-
-    /* SPARSITY PATTERN */
-    psparsepattern sp = new_sparsepattern(N + 3, N + 3);
-    for(uint i = 0; i < n*N; i++){
-        addnz_sparsepattern(sp, preconRowIdx->v[i], preconColIdx->v[i]);
-    }
     for(uint i = 0; i < 3; i++){
         addnz_sparsepattern(sp, N + i, N + i);
     }
+    printf("\n\nalrighty\n\n");
+    print_sparsepattern(sp);
 
-    /* SPARSE MATRIX */
-    psparsematrix spm = new_zero_sparsematrix(sp);
-    for(uint i = 0; i < n*N; i++){
-        setentry_sparsematrix(spm, preconRowIdx->v[i], preconColIdx->v[i], preconVals->v[i]);
+    spm = new_zero_sparsematrix(sp);
+    for(i = 0; i < n*N; i++){
+      rowidx = spm->row[i];
+      colidx = spm->col[i];
+      printf("rowidx = %u\n", rowidx);
+
+      setentry_sparsematrix(spm, rowidx, colidx, vals->v[i]);
+
     }
+
     for(uint i = 0; i < 3; i++){
         setentry_sparsematrix(spm, N+i, N+i, 1.0);
     }
     del_sparsepattern(sp);
     return spm;
 }
+
+*/
+
+
+
+
+
+HEADER_PREFIX psparsematrix 
+loadfromtxt_precon(uint N, uint n, char *filepath)
+{
+
+    real val;
+    uint colidx, rowidx;
+    uint i, j;
+
+    char strVals[150], strRowIdx[150], strColIdx[150];
+    char filepath_val[250], filepath_row[250], filepath_col[250];
+
+    psparsepattern sp;
+    psparsematrix spm;
+
+    sprintf(strVals, "precon/precon_val_N%d_n%d.txt", N, n);
+    sprintf(strRowIdx, "precon/precon_row_N%d_n%d.txt", N, n);
+    sprintf(strColIdx, "precon/precon_col_N%d_n%d.txt", N, n);
+
+    strcpy(filepath_val, filepath);
+    strcpy(filepath_row, filepath);
+    strcpy(filepath_col, filepath);
+
+    strcat(filepath_val, strVals);
+    strcat(filepath_row, strRowIdx);
+    strcat(filepath_col, strColIdx);
+
+    FILE *myFileVals, *myFileRowIdx, *myFileColIdx;
+    myFileRowIdx = fopen(filepath_row, "r");
+    myFileColIdx = fopen(filepath_col, "r");
+    if(myFileRowIdx == NULL || myFileColIdx == NULL){
+        printf("Error reading file\n");
+        exit(0);
+    }
+
+    sp = new_sparsepattern(N + 3, N + 3);
+ /*   colidx = 0;
+    for(i = 0; i < N; i++){ 
+      for(j = 0; j < n; j++){ 
+            fscanf(myFileRowIdx, "%u ", &rowidx);   
+           //             fscanf(myFileColIdx, "%u ", &colidx);
+   
+ //           printf("colidx: %u\n", colidx);      
+            addnz_sparsepattern(sp, rowidx, colidx);
+      }
+      colidx++;
+    }
+  */
+    for(i = 0; i < N; i++){
+      for(j=0;j<n;j++){
+            fscanf(myFileRowIdx, "%u ", &rowidx);      
+            fscanf(myFileColIdx, "%u ", &colidx);
+            addnz_sparsepattern(sp, rowidx, colidx);
+    }}
+    fclose(myFileColIdx);
+    fclose(myFileRowIdx);
+
+    for(uint i = 0; i < 3; i++){
+        addnz_sparsepattern(sp, N + i, N + i);
+    }
+
+    spm = new_zero_sparsematrix(sp);
+    myFileVals = fopen(filepath_val, "r");
+    myFileRowIdx = fopen(filepath_row, "r");
+    myFileColIdx = fopen(filepath_col, "r");
+    if(myFileVals == NULL || myFileRowIdx == NULL || myFileColIdx == NULL){
+        printf("Error reading file\n");
+        exit(0);
+    }
+    for(i = 0; i < N; i++){
+      for(j=0;j<n;j++){
+            fscanf(myFileVals, "%lf ", &val);      
+            fscanf(myFileRowIdx, "%u ", &rowidx);      
+            fscanf(myFileColIdx, "%u ", &colidx);
+    //        fscanf(myFileColIdx, "%u ", &colidx);      
+            setentry_sparsematrix(spm, rowidx, colidx, val);
+  }}
+
+    fclose(myFileVals);
+    fclose(myFileColIdx);
+    fclose(myFileRowIdx);
+
+    for(uint i = 0; i < 3; i++){
+        setentry_sparsematrix(spm, N+i, N+i, 1.0);
+    }
+    del_sparsepattern(sp);
+    return spm;
+}
+
 
 
 

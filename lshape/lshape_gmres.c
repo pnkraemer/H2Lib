@@ -1,4 +1,14 @@
+/*
+Run with either:
+
+./lshape/lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15
+./lshape/lshape_gmres /home/kraemer/Programmieren/txts/demlow/ 129 56 15
+
+All rights reserved, Nicholas Krämer, 2019
+*/
+
 #include <stdio.h>
+#include <string.h>
 
 #include "basic.h"
 #include "h2compression.h"
@@ -19,6 +29,9 @@ interpolant(field x, field y){
     return x + y;
 }
 
+
+
+/* 
 real tpsKernel(real coord){
     if(coord > 0.0){
         return coord*coord * log(coord);
@@ -27,6 +40,9 @@ real tpsKernel(real coord){
         return 0;
     }
 }
+*/
+
+
 
 
 void
@@ -50,17 +66,20 @@ make_rhs(pavector rhsvec, pclustergeometry cg)
 
 }
 
+
 static void 
-loadfromtxt_mesh(pkernelmatrix km, bool print_yes)
+loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *string)
 {
     uint points;
-    char filename[250];
+    char filename[50], filepath[250];
     FILE *meshfile;
 
     points = km->points;
-    sprintf(filename, "lshape/files/mesh/lmesh_N%u.txt", points);
+    sprintf(filename, "mesh/mesh_N%u.txt", points);
+    strcpy(filepath, string);
+    strcat(filepath, filename);
 
-    meshfile = fopen(filename, "r");
+    meshfile = fopen(filepath, "r");
     if(meshfile == NULL){
         printf("Error reading file\n");
         exit(0);
@@ -72,9 +91,9 @@ loadfromtxt_mesh(pkernelmatrix km, bool print_yes)
                (void) printf("(%.1f, %.1f)\n", km->x[i][0], km->x[i][1]);
     }
     fclose(meshfile);
-
 }
 
+/*
 static void
 make_random_lshape(pclustergeometry cg, bool printyes)
 {
@@ -90,7 +109,7 @@ make_random_lshape(pclustergeometry cg, bool printyes)
         x1 = FIELD_RAND();
         x2 = FIELD_RAND();
 
-        if(x1 < 0 || x2 < 0)
+        if(x1 < 0 || x2 > 0)
         {
             cg->x[counter][0] = x1;
             cg->x[counter][1] = x2;
@@ -105,55 +124,20 @@ make_random_lshape(pclustergeometry cg, bool printyes)
 
 
 
+*/
 
 
+/*
 
 
-
-
-
-
-
-
-
-
-static void 
-loadfromtxt_precon_lshape(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n)
-{
-
-    uint numPts = preconVals->dim;
-    char strVals[200], strRowIdx[200], strColIdx[200];
-    sprintf(strVals, "lshape/files/precon/precon_val_N%d_n%d.txt", N, n);
-    sprintf(strRowIdx, "lshape/files/precon/precon_row_N%d_n%d.txt", N, n);
-    sprintf(strColIdx, "lshape/files/precon/precon_col_N%d_n%d.txt", N, n);
-    FILE *myFileVals, *myFileColIdx, *myFileRowIdx;
-    myFileVals = fopen(strVals, "r");
-    myFileColIdx = fopen(strColIdx, "r");
-    myFileRowIdx = fopen(strRowIdx, "r");
-    if(myFileVals == NULL){
-        printf("Error reading file\n");
-        exit(0);
-    }
-    for(uint i = 0; i < numPts; i++){
-            fscanf(myFileVals, "%lf ", &(preconVals->v[i]));      
-            fscanf(myFileColIdx, "%lf ", &(preconColIdx->v[i]));      
-            fscanf(myFileRowIdx, "%lf ", &(preconRowIdx->v[i]));      
-    }
-    fclose(myFileVals);
-    fclose(myFileColIdx);
-    fclose(myFileRowIdx);
-}
-
-
-
-pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, clustergeometry *clGeom2, real shift) {
+pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, pkernelmatrix km, real shift) {
 
     uint numPts1 = clGeom1->nidx;
     uint numPts1kurz = clGeom1->nidx;
     uint dim1 = clGeom1->dim;
-    uint numPts2 = clGeom2->nidx ;
-    uint numPts2kurz = clGeom2->nidx;
-    uint dim2 = clGeom2->dim;
+    uint numPts2 = km->points ;
+    uint numPts2kurz = km->points;
+    uint dim2 = km->dim;
     assert(dim1 == dim2);
     uint dim = dim1;
 
@@ -167,7 +151,7 @@ pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, clustergeometry *
         for(uint j = 0; j < numPts2kurz; j++){
             real* Y = allocreal(dim);
             for(uint d = 0; d < dim; d++){
-                Y[d] = (clGeom2->x)[j][d];
+                Y[d] = (km->x)[j][d];
             }
                         norm = 0;
             for(uint d = 0; d < dim; d++){
@@ -188,13 +172,57 @@ pamatrix new_kernelamatrix_tpssquare(clustergeometry *clGeom1, clustergeometry *
     
     for(uint idx = 0; idx < numPts2kurz; idx++){
         setentry_amatrix(kernelMtrx, numPts1kurz, idx, 1.0);
-        setentry_amatrix(kernelMtrx, numPts1kurz + 1, idx, clGeom2->x[idx][0]);
-        setentry_amatrix(kernelMtrx, numPts1kurz + 2, idx, clGeom2->x[idx][1]);
+        setentry_amatrix(kernelMtrx, numPts1kurz + 1, idx, km->x[idx][0]);
+        setentry_amatrix(kernelMtrx, numPts1kurz + 2, idx, km->x[idx][1]);
     }
     return kernelMtrx;
 }
 
+*/
 
+static real
+rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
+
+    pavector    rowofkm;
+    uint        dim, points;
+    real        rmse;
+    uint        i, j;
+    real        kij;
+    real        pt[2];
+
+    points = km->points;
+    dim = km->dim;
+    assert(dim == 2);       /* script not ready for higher dimensions yet */
+    rowofkm = new_avector(points + 1 + dim);
+    assert(rowofkm->dim == sol->dim);
+
+
+    rmse = 0;
+    for(i = 0; i < num_evalpts; i++){
+
+        /* get random evaluation point*/
+        do{
+            pt[0] = FIELD_RAND();
+            pt[1] = FIELD_RAND();
+        }while(pt[0]>0 && pt[1]<0);   /* exclude bottom right corner */
+
+        /* assemble row of kernelmatrix*/
+        for(j = 0; j < points; j++){
+            kij = km->kernel(pt, km->x[j], km->data);
+            setentry_avector(rowofkm, j, kij);
+        }
+        setentry_avector(rowofkm, points, 1.0);
+        setentry_avector(rowofkm, points + 1, pt[0]);
+        setentry_avector(rowofkm, points + 2, pt[1]);
+
+        kij = dotprod_avector(rowofkm, sol) - interpolant(pt[0], pt[1]);
+        rmse += kij*kij;
+    }
+
+    del_avector(rowofkm);
+
+    return REAL_SQRT(rmse / (1.0 * num_evalpts));
+}
 
 
 
@@ -205,32 +233,18 @@ main(int argc, char **argv)
 
     pkernelmatrix       km;
     pclustergeometry    cg;
-    pclustergeometry    cgeval;
     pcluster            root;
     pblock              broot;
     pclusterbasis       cb;
-    ph2matrix           Gh1, 
-                        Gh2;
+    ph2matrix           Gh1, Gh2;
     pstopwatch          sw;
     ptruncmode          tm;
     pamatrix            pb; 
-//                      bigmat;
-//	pavector            testvec, 
-//                       res_h2, 
-//                        res_a; 
-    pavector            preconval,
+/*  pavector            preconval,
                         preconrow,
                         preconcol;
-    psparsematrix       precon_sp;
-//  pamatrix            precon_am;
-    pamatrix            kmeval;
-//  pamatrix            res;
-    pavector            rhs,
-                        x0;
-    pavector            approxvec,
-                        trueappr,
-                        trueeval;
-
+*/  psparsematrix       precon_sp;
+    pavector            rhs, x0;
 
     uint                *idx;
     uint                points;
@@ -247,59 +261,76 @@ main(int argc, char **argv)
     bool                print_yes;
     uint                evalpoints;
     real                currentRelError;
+    char                filepath[250];
+    real                gmres_tol;
+    uint                gmres_kk, 
+                        gmres_maxit;
+
     /* Parameters */
     sw = new_stopwatch();
-    points = atoi(argv[1]);     /* number of points*/
-    n = atoi(argv[2]);          /* number of neighbours */
-    m = atoi(argv[3]);          /* interpolation order */
-    lsz = 2*m*m;                /* leafsize prop. to interpolation order */
-    eps = pow(10.0, -1.0 * m);  /* recompression tolerance proportional to interpolation order */
-    eta = 1.0;                  /* generic admissibility condition */
-//    assert(points<24000);       /* 24000 is all one can do with 8GB of RAM*/
-    dim = 2;                    /* this script is 2D only*/
-    evalpoints = 10000;         /* number of points for RMSE estimate*/
+    strcpy(filepath, argv[1]);    /* path to mesh and precon*/
+    points = atoi(argv[2]);       /* number of points*/
+    n = atoi(argv[3]);            /* number of neighbours */
+    m = atoi(argv[4]);            /* interpolation order */
+    lsz = 2*m*m;                  /* leafsize prop. to interpolation order */
+    eps = pow(10.0, -1.0 * 2*m);  /* recompression tolerance proportional to interpolation order */
+    eta = 2.0;                    /* generic admissibility condition */
+//  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
+    dim = 2;                      /* this script is 2D only*/
+    evalpoints = 10000;           /* number of points for RMSE estimate*/
+    gmres_tol = 1e-5;
+    gmres_maxit = 500;
+    gmres_kk = 20;
 
 
 
-
-
-    (void) printf("\nCreating kernelmatrix object for %u points, interpolation order %u\n", points, m);
+    (void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
+    start_stopwatch(sw);
     km = new_kernelmatrix(dim, points, m);
     km->kernel = tps_kernel_2d; /* Choose 2d-kernel*/
+    t_setup = stop_stopwatch(sw);
+    t_setup = stop_stopwatch(sw);
+    (void) printf("\t%.2f seconds\n", t_setup);
 
-    (void) printf("\nLoading mesh from txt file\n");
+    (void) printf("Loading mesh from txt file\n");
+    start_stopwatch(sw);
     print_yes = 0;
-    loadfromtxt_mesh(km, print_yes);
+    loadfromtxt_mesh(km, print_yes, filepath);
+    t_setup = stop_stopwatch(sw);
+    (void) printf("\t%.2f seconds\n", t_setup);
 
 
 
 
     (void) printf("Creating clustergeometry, cluster and block tree\n");
+    start_stopwatch(sw);
     cg = creategeometry_kernelmatrix(km);
     idx = (uint *) allocmem(sizeof(uint) * (points));
     for(i=0; i<points; i++)
         idx[i] = i;
     root = build_adaptive_cluster(cg, points, idx, lsz);
     broot = build_strict_block(root, root, &eta, admissible_2_cluster);
+    t_setup = stop_stopwatch(sw);
+    (void) printf("\t%.2f seconds\n", t_setup);
 
 
     (void) printf("Creating and filling cluster basis\n");
+    start_stopwatch(sw);
     cb = build_from_cluster_clusterbasis(root);
     start_stopwatch(sw);
     fill_clusterbasis_kernelmatrix(km, cb);
     t_setup = stop_stopwatch(sw);
     sz = getsize_clusterbasis(cb);
+    t_setup = stop_stopwatch(sw);
+    (void) printf("\t%.2f seconds\n", t_setup);
 
     (void) printf("Loading preconditioner\n");
     start_stopwatch(sw);
-    preconval = new_avector(points*n);
-    preconrow = new_avector(points*n);
-    preconcol = new_avector(points*n);
-    loadfromtxt_precon_lshape(preconval, preconrow, preconcol, points, n);
-    precon_sp = make_precon_sparse(preconval, preconrow, preconcol, points, n);
-//  precon_am = make_precon_full(preconval, preconrow, preconcol, points, n);
-//  res = new_zero_amatrix(points + dim + 1, points + dim + 1);
-//  addmul_amatrix(1.0, 0, bigmat, 0, precon_am, res);
+//    preconval = new_avector(points*n);
+//    preconrow = new_avector(points*n);
+//    preconcol = new_avector(points*n);
+    precon_sp = loadfromtxt_precon(points, n, filepath);
+//    precon_sp = make_precon_sparse(preconval, preconrow, preconcol, points, n);
     t_setup = stop_stopwatch(sw);
     sz = getsize_sparsematrix(precon_sp);
     (void) printf("\t%.2f seconds\n"
@@ -309,20 +340,20 @@ main(int argc, char **argv)
 
 
 
-    (void) printf("Creating, filling and recompressing H^2-matrix\n");
-    Gh1 = build_from_block_h2matrix(broot, cb, cb);
+    (void) printf("Creating, filling and recompressing H^2-matrix (and polblock)\n");
     start_stopwatch(sw);
+    Gh1 = build_from_block_h2matrix(broot, cb, cb);
     fill_h2matrix_kernelmatrix(km, Gh1);
     tm = new_releucl_truncmode();
     Gh2 = compress_h2matrix_h2matrix(Gh1, false, false, tm, eps);
+	pb = new_amatrix(points, 1 + dim);
+    assemble_pblock(km, pb);
     t_setup = stop_stopwatch(sw);
     sz = getsize_h2matrix(Gh2);
     (void) printf("\t%.2f seconds\n"
-		"\t%.1f MB\n"
-		"\t%.1f KB/DoF\n",
-		t_setup, sz / 1048576.0, sz / 1024.0 / points);
-	pb = new_amatrix(points, 1 + dim);
-    assemble_pblock(km, pb);
+        "\t%.1f MB\n"
+        "\t%.1f KB/DoF\n",
+        t_setup, sz / 1048576.0, sz / 1024.0 / points);
 
 
 /*  (void) printf("Filling reference matrix\n");
@@ -340,25 +371,15 @@ main(int argc, char **argv)
 
 
 
-/*  (void) printf("Computing rel. MVM discrepancy\n");
-    testvec = new_avector(points + dim + 1);
-    res_h2 = new_zero_avector(points + dim + 1);
-    res_a = new_zero_avector(points + dim + 1);
-    random_real_avector(testvec);
-    addeval_sparsematrix_avector(1.0, precon_sp, testvec, rhs);
-    addeval_amatrix_avector(1.0, bigmat, rhs, res_a);
-    addeval_cond_kernelh2matrix_precon(1.0, Gh2, pb, precon_sp, testvec, res_h2);
-    add_avector(-1.0, res_h2, res_a);
-    real diff = norm2_avector(res_a) / norm2_avector(res_h2);
-    printf("\t%.1e\n", diff);
-*/
+
+
     (void) printf("Computing GMRES\n");
     start_stopwatch(sw);
     rhs = new_zero_avector(points + 1 + dim);
     make_rhs(rhs, cg);
     error = norm2_avector(rhs);
     x0 = new_zero_avector(points + dim + 1);
-    iter = solve_gmres_h2precond_avector(Gh2, pb, precon_sp, rhs, x0, 1e-5, 10000, 20);
+    iter = solve_gmres_h2precond_avector(Gh2, pb, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
     addeval_cond_kernelh2matrix_precon(-1.0, Gh2, pb, precon_sp, x0, rhs);
     error = norm2_avector(rhs)/error;
     pavector sol = new_zero_avector(points + dim + 1);
@@ -376,22 +397,11 @@ main(int argc, char **argv)
 
 
     (void) printf("Approximating RMSE");
-    cgeval = new_clustergeometry(2, evalpoints);
-    make_random_lshape(cgeval, 0);
-    kmeval = new_kernelamatrix_tpssquare(cgeval, cg, 0.0);
-    approxvec = new_zero_avector(evalpoints + dim + 1);
-    addeval_amatrix_avector(1.0, kmeval, sol, approxvec);
-    trueappr = new_zero_avector(evalpoints);
-    for(uint i = 0; i < evalpoints; i++){
-        trueappr->v[i] = approxvec->v[i];
-    }
-    trueeval = new_zero_avector(evalpoints);
-    for(uint i = 0; i < evalpoints; i++){
-        trueeval->v[i] = interpolant(cgeval->x[i][0], cgeval->x[i][1]);
-    }
-    add_avector(-1.0, trueeval, trueappr);
-    currentRelError = norm2_avector(trueappr) / sqrt((real)(trueappr->dim));
-    printf("\n\t%.1e\n", currentRelError);
+    start_stopwatch(sw);
+    t_setup = stop_stopwatch(sw);
+    (void) printf("\n\t%.2f seconds\n", t_setup);
+    currentRelError = rmse_onthefly(sol, km, evalpoints);
+    (void) printf("\t%.1e rmse\n\n", currentRelError);
 
 
 /*  error = norm2_avector(rhs);
@@ -412,18 +422,13 @@ main(int argc, char **argv)
     cairo_surface_destroy(surface_h2mat);
 */
 
-    del_clustergeometry(cgeval);
-    del_amatrix(kmeval);
-    del_avector(approxvec);
-    del_avector(trueappr);
-    del_avector(trueeval);
     del_avector(rhs);
     del_avector(x0);
     del_avector(sol);
 //    del_amatrix(res);
-    del_avector(preconval);
-    del_avector(preconrow);
-    del_avector(preconcol);
+//    del_avector(preconval);
+//    del_avector(preconrow);
+//    del_avector(preconcol);
     del_sparsematrix(precon_sp);
 //    del_amatrix(precon_am);
     del_amatrix(pb);
