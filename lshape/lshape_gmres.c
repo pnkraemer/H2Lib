@@ -279,7 +279,7 @@ main(int argc, char **argv)
     dim = 2;                      /* this script is 2D only*/
     evalpoints = 10000;           /* number of points for RMSE estimate*/
     gmres_tol = 1e-5;
-    gmres_maxit = 500;
+    gmres_maxit = 5000;
     gmres_kk = 20;
 
 
