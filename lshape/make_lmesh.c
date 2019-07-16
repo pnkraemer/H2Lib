@@ -47,7 +47,7 @@ main(int argc, char **argv)
     strcpy(filepath, argv[1]);
 //    filepath = strcpy(argv[1]);
     numref = atoi(argv[2]);         /* Number of refinements*/
-    assert(numref<=10);           /* 8 refs are 200000 pts*/
+    assert(numref<=10);             /* 8 refs are 200000 pts*/
 
     (void) printf("\nCreating L-shaped mesh,\n\t%u refinement(s)\n       ", numref);
 
@@ -62,10 +62,10 @@ main(int argc, char **argv)
 
 
 
- /*   (void) printf("Turning the L-shape...\n");
+ /*   (void) printf("Make bottom right into top right...\n");
     for(i = 0; i < numpts; i++){
         if(gr_2d[numref]->x[i][0] > 0 && gr_2d[numref]->x[i][1] < 0){
-            gr_2d[numref]->x[i][1] *= -1;
+            gr_2d[numref]->x[i][1] *= -1.0;
         }
     }
 
@@ -82,9 +82,6 @@ main(int argc, char **argv)
     for (i=0; i<numpts; i++) 
         fprintf(fptr,"%lf %lf\n", gr_2d[numref]->x[i][0], gr_2d[numref]->x[i][1]); 
     fclose(fptr); 
-
-
-
 
 
 
