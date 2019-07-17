@@ -18,23 +18,33 @@
 #include <string.h>
 
 
-HEADER_PREFIX void 
+HEADER_PREFIX void
 addeval_cond_kernelh2matrix(field alpha, ph2matrix h2km, pamatrix pb, pavector src, pavector trg);
-HEADER_PREFIX void 
+HEADER_PREFIX void
 addeval_cond_kernelh2matrix_precon(field alpha, ph2matrix h2km, pamatrix pb, psparsematrix spm, pavector src, pavector trg);
 
-HEADER_PREFIX uint 
+HEADER_PREFIX uint
 solve_gmres_h2precond_avector(ph2matrix h2m, pamatrix polblock, psparsematrix spm, pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
-HEADER_PREFIX psparsematrix 
+
+
+
+
+
+
+
+
+
+
+HEADER_PREFIX psparsematrix
 loadfromtxt_precon(uint N, uint n, char *filepath);
 
-//HEADER_PREFIX psparsematrix 
+//HEADER_PREFIX psparsematrix
 //make_precon_sparse(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n);
 
 
 
-HEADER_PREFIX pamatrix 
+HEADER_PREFIX pamatrix
 make_precon_full(pavector preconVals, pavector preconRowIdx, pavector preconColIdx, uint N, uint n);
 
 HEADER_PREFIX void
