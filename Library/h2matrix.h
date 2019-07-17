@@ -186,10 +186,10 @@ clone_h2matrix(pch2matrix h2, pclusterbasis rb, pclusterbasis cb);
 /** @brief Complete the initialisation of a @ref h2matrix object.
  *
  * Complete the initialisation of the @ref h2matrix object after all sons
- * have been initialised. 
+ * have been initialised.
  * The number of the descendants of the @f$\mathcal{H}^2@f$-matrix is
  * computed from the <tt>desc</tt> fields of its sons.
- * 
+ *
  * @param h2 @f$\mathcal{H}^2@f$-matrix to be completed. */
 HEADER_PREFIX void
 update_h2matrix(ph2matrix h2);

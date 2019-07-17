@@ -58,7 +58,7 @@ main(int argc, char **argv)
   pstopwatch sw;
   char kernel;
   uint points;
-  uint m, leafsize;
+  uint m, leafsize, cpos;
   uint *idx;
   size_t sz;
   real eta;
@@ -81,10 +81,11 @@ main(int argc, char **argv)
   eps = askforreal("Recompression tolerance?", "h2lib_comptol", 1e-4);
 
   eta = 2.0;
-  
+
   (void) printf("Creating kernelmatrix object for %u points, order %u\n",
 		points, m);
-  km = new_kernelmatrix(3, points, m);
+  cpos = 1;
+  km = new_kernelmatrix(3, points, m, cpos);
   switch(kernel) {
   case 'e':
     (void) printf("  Exponential kernel function\n");
@@ -159,7 +160,7 @@ main(int argc, char **argv)
   norm = norm2_h2matrix(Gh1);
   (void) printf("  Spectral norm %.3e\n",
 		norm);
-  
+
   (void) printf("Filling reference matrix\n");
   G = new_amatrix(points, points);
   start_stopwatch(sw);
@@ -180,7 +181,7 @@ main(int argc, char **argv)
   error = norm2diff_amatrix_h2matrix(Gh1, G);
   (void) printf("  Spectral error %.3e (%.3e)\n",
 		error, error/norm);
-  
+
   (void) printf("Recompressing H^2-matrix, eps=%g\n",
 		eps);
   start_stopwatch(sw);

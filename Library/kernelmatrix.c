@@ -1,5 +1,15 @@
 
 
+
+/* ------------------------------------------------------------
+ * TODO (N.K.)
+ * make a function:
+ * void set_kernel(pkernelmatrix km, pkernel kfct)
+ * which does km->kernel = kfct;
+ * ------------------------------------------------------------ */
+
+
+
 /* ------------------------------------------------------------
  * This is the file "kernelmatrix.c" of the H2Lib package.
  * All rights reserved, Steffen Boerm 2018
@@ -14,7 +24,7 @@
  * ------------------------------------------------------------ */
 
 pkernelmatrix
-new_kernelmatrix(uint dim, uint points, uint m)
+new_kernelmatrix(uint dim, uint points, uint m, uint cpos)
 {
   pkernelmatrix km;
   real *x0;
@@ -25,11 +35,12 @@ new_kernelmatrix(uint dim, uint points, uint m)
   km->dim = dim;
   km->points = points;
   km->m = m;
+  km->cpos = cpos;
 
   /* Empty kernel callback function */
   km->kernel = 0;
   km->data = 0;
-  
+
   /* Initialize arrays for point coordinates */
   km->x = (real **) allocmem(sizeof(real *) * points);
   km->x[0] = x0 = allocreal(points * dim);
@@ -371,7 +382,7 @@ fillV_1d(uint dim, uint i, uint j0,
 
   if(dim > 0) {
     dim--;
-    
+
     for(j=0; j<m; j++) {
       alpha = alpha0 * eval_lagrange(m, txi[dim], j, xx[dim]);
 
@@ -433,7 +444,7 @@ fillE_1d(uint dim, uint i0, uint j0,
 
   if(dim > 0) {
     dim--;
-    
+
     for(i=0; i<m; i++)
       for(j=0; j<m; j++) {
 	alpha = alpha0 * eval_lagrange(m, fxi[dim], j, sxi[dim][i]);
@@ -544,4 +555,3 @@ fill_h2matrix_kernelmatrix(pckernelmatrix km, ph2matrix G)
     fillN_kernelmatrix(G->rb->t->idx, G->cb->t->idx, km, G->f);
   }
 }
-

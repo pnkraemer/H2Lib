@@ -251,7 +251,7 @@ main(int argc, char **argv)
 
 	uint                *idx;
 	uint                points;
-	uint                m, lsz;
+	uint                m, lsz, cpos;
 	uint                dim;
 	size_t              sz;
 	real                eta;
@@ -285,11 +285,12 @@ main(int argc, char **argv)
 	gmres_tol = 1e-5;
 	gmres_maxit = 5000;
 	gmres_kk = 20;
+	cpos = 1;	// cond. pos. def. kernel
 
 
 	(void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
 	start_stopwatch(sw);
-	km = new_kernelmatrix(dim, points, m);
+	km = new_kernelmatrix(dim, points, m, cpos);
 	km->kernel = tps_kernel_2d; /* Choose 2d-kernel*/
 	t_setup = stop_stopwatch(sw);
 	t_setup = stop_stopwatch(sw);

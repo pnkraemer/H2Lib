@@ -49,7 +49,7 @@ struct _kernelmatrix {
   void *data;
 
   /** @brief Is the kernel cond. positive definite? */
-  bool cpos;
+  uint cpos;
 
   /** @brief Number of points. */
   uint points;
@@ -71,7 +71,7 @@ struct _kernelmatrix {
  *  @param m Interpolation order.
  *  @returns New object. */
 HEADER_PREFIX pkernelmatrix
-new_kernelmatrix(uint dim, uint points, uint m);
+new_kernelmatrix(uint dim, uint points, uint m, uint cpos);
 
 /** @brief Delete a @ref kernelmatrix object.
  *

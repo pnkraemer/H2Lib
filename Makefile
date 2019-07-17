@@ -82,6 +82,7 @@ H2LIB_BEM = \
 H2LIB_KERN = \
 	Library/kernelfcts.c \
 	Library/kernelmatrix.c \
+	Library/blockkernelmatrix.c \
 	Library/addon_kernelmatrix.c
 
 SOURCES_libh2 := \
@@ -130,7 +131,8 @@ SOURCES_tests := \
 	Tests/test_ddcluster.c\
 	Tests/test_tri2drt0.c\
 	Tests/test_tet3drt0.c\
-	Tests/test_kernelmatrix.c
+	Tests/test_kernelmatrix.c\
+	Tests/test_blockkernelmatrix.c\
 
 OBJECTS_tests := \
 	$(SOURCES_tests:.c=.o)
