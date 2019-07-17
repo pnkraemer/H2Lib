@@ -312,7 +312,7 @@ main(int argc, char **argv)
 	idx = (uint *) allocmem(sizeof(uint) * (points));
 	for(i=0; i<points; i++)
 	idx[i] = i;
-	root = build_adaptive_cluster(cg, points, idx, lsz);
+	root = build_cluster(cg, points, idx, lsz, H2_REGULAR);
 	broot = build_strict_block(root, root, &eta, admissible_2_cluster);
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
@@ -367,11 +367,6 @@ main(int argc, char **argv)
 	"\t%.1f KB/DoF\n",
 	t_setup, sz / 1048576.0, sz / 1024.0 / points);
 */
-
-
-
-
-
 
 	(void) printf("Computing GMRES\n");
 	start_stopwatch(sw);
