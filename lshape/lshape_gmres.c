@@ -240,9 +240,14 @@ main(int argc, char **argv)
 	pstopwatch          sw;
 	ptruncmode          tm;
 	pamatrix            pb;
-    psparsematrix       precon_sp;
+	psparsematrix       precon_sp;
 	pavector            rhs, x0;
-	pavector 			sol;
+	pavector            sol;
+	pamatrix            bigmat;
+	pavector            testvec, res_a, res_h2;
+	pamatrix            precon_full, kp;
+	pavector            sol2;
+	real                mvm_error;
 
 	uint                *idx;
 	uint                points;
@@ -269,8 +274,9 @@ main(int argc, char **argv)
 	points = atoi(argv[2]);       /* number of points*/
 	n = atoi(argv[3]);            /* number of neighbours */
 	m = atoi(argv[4]);            /* interpolation order */
+	assert(points>0 && n > 0 && m > 0);
 	lsz = 2*m*m;                  /* leafsize prop. to interpolation order */
-	eps = pow(10.0, -1.0 * m);  /* recompression tolerance proportional to interpolation order */
+	eps = pow(10.0, -1.0 * m);    /* recompression tolerance proportional to interpolation order */
 	eta = 2.0;                    /* generic admissibility condition */
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
@@ -387,21 +393,19 @@ main(int argc, char **argv)
 
 
 	/* Check: if GMRES fails -> what was the issue?
-	 * h2approx or bad preconditioning */
-	pamatrix bigmat;
-	pavector testvec, res_a, res_h2;
-	pamatrix precon_full, kp;
-	pavector sol2;
-	real mvm_error;
-//	if(1){
+	 * h2approx or
+	 * bad preconditioning */
+	sol2 = new_zero_avector(x0->dim);
 	if(error > gmres_tol){
-
-		/* Check approximation error of H2Matrix */
-		(void) printf(" ->TOO MUCH ERROR!\nChecking reference matrix\n");
+		/* Assemble big matrix */
+		(void) printf(" ->TOO MUCH ERROR!");
+		(void) printf("\n--------------------------------------------------");
+		(void) printf("\nChecking reference matrix\n");
 		start_stopwatch(sw);
 		bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
 		assemble_big_kernelmatrix(km, bigmat);
 
+		/* Check approximation error of H2Matrix */
 		testvec = new_avector(bigmat->rows);
 		res_a = new_zero_avector(bigmat->rows);
 		res_h2 = new_zero_avector(bigmat->rows);
@@ -434,26 +438,20 @@ main(int argc, char **argv)
 		(void) printf("\t%u GMRES iterations\n", iter);
 		(void) printf("\t%.1e relative GMRES error", error);
 		if(error > gmres_tol){
-			printf(" ->BAD\n");
+			printf(" ->BAD");
 		} else{
-			printf("->GOOD\n");
+			printf("->GOOD");
 		}
+		(void) printf("\n--------------------------------------------------");
 
-
-
-		sol2 = new_zero_avector(x0->dim);
 		addeval_amatrix_avector(1.0, precon_full, x0, sol2);
-
-
 		del_avector(testvec);
 		del_avector(res_a);
 		del_avector(res_h2);
 		del_amatrix(bigmat);
+		del_amatrix(precon_full);
 		del_amatrix(kp);
 	}
-
-
-
 
 
 	(void) printf("\nApproximating RMSE");
@@ -462,7 +460,6 @@ main(int argc, char **argv)
 	(void) printf("\n\t%.2f seconds\n", t_setup);
 	currentRelError = rmse_onthefly(sol, km, evalpoints);
 	(void) printf("\t%.1e rmse\n", currentRelError);
-//	if(1){
 	if(error > gmres_tol){
 		currentRelError = rmse_onthefly(sol2, km, evalpoints);
 		(void) printf("\t(%.1e rmse with full matrix)\n\n", currentRelError);
@@ -470,15 +467,6 @@ main(int argc, char **argv)
 
 
 
-
-/*  error = norm2_avector(rhs);
-	x0 = new_zero_avector(points + dim + 1);
-	iter = solve_gmres_amatrix_avector(res, rhs, x0, 1e-5, 10000, 20);
-	printf("Number of GMRES iterations: %u\n\n", iter);
-	addeval_amatrix_avector(-1.0, res, x0, rhs);
-	error = norm2_avector(rhs);
-	printf("ERROR of GMRES: %.1e\n\n", error);
-*/
 
 
 /*  cairo_surface_t *surface_h2mat = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1920, 1080);
@@ -492,12 +480,9 @@ main(int argc, char **argv)
 	del_avector(rhs);
 	del_avector(x0);
 	del_avector(sol);
+	del_avector(sol2);
 	del_sparsematrix(precon_sp);
 	del_amatrix(pb);
-//  del_avector(testvec);
-//  del_avector(res_h2);
-//  del_avector(res_a);
-//    del_amatrix(bigmat);
 	del_kernelmatrix(km);
 	del_clustergeometry(cg);
 	del_cluster(root);
