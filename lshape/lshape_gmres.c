@@ -267,6 +267,7 @@ main(int argc, char **argv)
 	char                filepath[250];
 	real                gmres_tol;
 	uint                gmres_kk, gmres_maxit;
+	real                error_fullgmres;
 
 	/* Parameters */
 	sw = new_stopwatch();
@@ -284,7 +285,6 @@ main(int argc, char **argv)
 	gmres_tol = 1e-5;
 	gmres_maxit = 5000;
 	gmres_kk = 20;
-
 
 
 	(void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
@@ -421,7 +421,7 @@ main(int argc, char **argv)
 		error = norm2_avector(rhs);
 		iter = solve_gmres_amatrix_avector(kp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
 		addeval_amatrix_avector(-1.0, kp, x0, rhs);
-		error = norm2_avector(rhs)/error;
+		error_fullgmres = norm2_avector(rhs)/error;
 		t_setup = stop_stopwatch(sw);
 		(void) printf("\t%.2f seconds\n", t_setup);
 		(void) printf("\t%.1e relative MVM error", mvm_error);
@@ -432,7 +432,7 @@ main(int argc, char **argv)
 		}
 		(void) printf("\t%u GMRES iterations\n", iter);
 		(void) printf("\t%.1e relative GMRES error", error);
-		if(error > gmres_tol){
+		if(error_fullgmres > gmres_tol){
 			printf(" ->BAD");
 		} else{
 			printf("->GOOD");
