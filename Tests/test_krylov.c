@@ -135,25 +135,25 @@ main()
     problems++;
   }
 
-  (void) printf("Testing preconditioned GMRES method\n");
+  (void) printf("Testing (left) preconditioned GMRES method\n");
   random_avector(x);
 
-  init_pgmres((addeval_t) addeval_amatrix_avector, A,
+  init_lpgmres((addeval_t) addeval_amatrix_avector, A,
 	      gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
   steps = 0;
   while (steps < 2 * n && residualnorm_pgmres(rhat, k) > 1e-8) {
     if (k + 1 >= kmax)
-      finish_pgmres((addeval_t) addeval_amatrix_avector, A,
+      finish_lpgmres((addeval_t) addeval_amatrix_avector, A,
 		    gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
 
-    step_pgmres((addeval_t) addeval_amatrix_avector, A,
+    step_lpgmres((addeval_t) addeval_amatrix_avector, A,
 		gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
     steps++;
 
     printf("  Step %u: dimension %u, preconditioned residual %.2e\n",
 	   steps, k, ABS(rhat->v[k]));
   }
-  finish_pgmres((addeval_t) addeval_amatrix_avector, A,
+  finish_lpgmres((addeval_t) addeval_amatrix_avector, A,
 		gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
   copy_avector(b, r);
   addeval_amatrix_avector(-1.0, A, x, r);
@@ -167,6 +167,42 @@ main()
     printf("    NOT Okay\n");
     problems++;
   }
+
+
+  (void) printf("Testing (right) preconditioned GMRES method\n");
+  random_avector(x);
+
+  init_rpgmres((addeval_t) addeval_amatrix_avector, A,
+	      gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
+  steps = 0;
+  while (steps < 2 * n && residualnorm_pgmres(rhat, k) > 1e-8) {
+    if (k + 1 >= kmax)
+      finish_rpgmres((addeval_t) addeval_amatrix_avector, A,
+		    gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
+
+    step_rpgmres((addeval_t) addeval_amatrix_avector, A,
+		gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
+    steps++;
+
+    printf("  Step %u: dimension %u, preconditioned residual %.2e\n",
+	   steps, k, ABS(rhat->v[k]));
+  }
+  finish_rpgmres((addeval_t) addeval_amatrix_avector, A,
+		gauss_seidel, A, b, x, rhat, q, &k, qr, tau);
+  copy_avector(b, r);
+  gauss_seidel(A, x);
+  addeval_amatrix_avector(-1.0, A, x, r);
+  error = norm2_avector(r);
+  (void) printf("  %u steps, preconditioned residual norm %.2e (%.2e):",
+		steps, error, residualnorm_pgmres(rhat, k));
+  if (steps <= n && error <= 1e-8 && residualnorm_pgmres(rhat, k) < 1e-8)
+    printf("    Okay\n");
+  else {
+    printf("    NOT Okay\n");
+    problems++;
+  }
+
+
 
   del_avector(tau);
   del_amatrix(qr);

@@ -150,6 +150,7 @@ PROGRAMS_tests := \
 SOURCES_examples = \
     lshape/make_lmesh.c \
     lshape/lshape_gmres.c \
+    lshape/clean_lshape_gmres.c \
 
 
 OBJECTS_examples = \

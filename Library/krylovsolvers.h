@@ -365,7 +365,7 @@ solve_gmres_blockkernelmatrix_avector(pcblockkernelmatrix A, pcavector b, pavect
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_avector(void* A, addeval_t addeval_A, prcd_t prcd, void *pdata,
+solve_lpgmres_avector(void* A, addeval_t addeval_A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 
@@ -385,8 +385,8 @@ solve_pgmres_avector(void* A, addeval_t addeval_A, prcd_t prcd, void *pdata,
  *         means that the number of iterations is not bounded.
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
-uint    /* PGMRES with RIGHT(!) Preconditioner; standard pgmres uses left*/
-solve_pgmres_avector_right(void* A, addeval_t addeval_A, prcd_t prcd, void *pdata,
+uint    /* lpgmres with RIGHT(!) Preconditioner; standard lpgmres uses left*/
+solve_rpgmres_avector(void* A, addeval_t addeval_A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -404,7 +404,7 @@ solve_pgmres_avector_right(void* A, addeval_t addeval_A, prcd_t prcd, void *pdat
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata, pcavector b,
+solve_lpgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata, pcavector b,
     pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -422,7 +422,7 @@ solve_pgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata, pcavector b,
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_sparsematrix_avector(pcsparsematrix A, prcd_t prcd, void *pdata,
+solve_lpgmres_sparsematrix_avector(pcsparsematrix A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -440,7 +440,7 @@ solve_pgmres_sparsematrix_avector(pcsparsematrix A, prcd_t prcd, void *pdata,
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_hmatrix_avector(pchmatrix A, prcd_t prcd, void *pdata, pcavector b,
+solve_lpgmres_hmatrix_avector(pchmatrix A, prcd_t prcd, void *pdata, pcavector b,
     pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -458,7 +458,7 @@ solve_pgmres_hmatrix_avector(pchmatrix A, prcd_t prcd, void *pdata, pcavector b,
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
+solve_lpgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -476,29 +476,11 @@ solve_pgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
+solve_lpgmres_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 uint
-solve_pgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
-    pcavector b, pavector x, real eps, uint maxiter, uint kmax);
-
-/** @brief Solve a linear system @f$Ax=b@f$ with the
- *  preconditioned generalized minimal residual method.
- *
- *  @param A System matrix, should be invertible.
- *  @param prcd Callback function for preconditioner @f$N@f$.
- *  @param pdata Data for <tt>prcd</tt> callback function.
- *  @param b Right-hand side vector.
- *  @param x Initial guess, will be overwritten by approximate solution.
- *  @param eps Relative accuracy @f$\epsilon@f$, the method stops if
- *         @f$\|N(Ax-b)\|_2 \leq \epsilon \|N b\|_2@f$.
- *  @param maxiter Maximal number of iterations. <tt>maxiter=0</tt>
- *         means that the number of iterations is not bounded.
- *  @param kmax Maximal dimension of Krylov subspace.
- *  @returns Number of iterations. */
-uint
-solve_pgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
+solve_lpgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 /** @brief Solve a linear system @f$Ax=b@f$ with the
@@ -516,7 +498,44 @@ solve_pgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void 
  *  @param kmax Maximal dimension of Krylov subspace.
  *  @returns Number of iterations. */
 uint
-solve_pgmres_blockkernelmatrix_avector_right(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
+solve_lpgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
+    pcavector b, pavector x, real eps, uint maxiter, uint kmax);
+
+/** @brief Solve a linear system @f$Ax=b@f$ with the
+ *  preconditioned generalized minimal residual method.
+ *
+ *  @param A System matrix, should be invertible.
+ *  @param prcd Callback function for preconditioner @f$N@f$.
+ *  @param pdata Data for <tt>prcd</tt> callback function.
+ *  @param b Right-hand side vector.
+ *  @param x Initial guess, will be overwritten by approximate solution.
+ *  @param eps Relative accuracy @f$\epsilon@f$, the method stops if
+ *         @f$\|N(Ax-b)\|_2 \leq \epsilon \|N b\|_2@f$.
+ *  @param maxiter Maximal number of iterations. <tt>maxiter=0</tt>
+ *         means that the number of iterations is not bounded.
+ *  @param kmax Maximal dimension of Krylov subspace.
+ *  @returns Number of iterations. */
+uint
+solve_rpgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata, pcavector b,
+    pavector x, real eps, uint maxiter, uint kmax);
+
+
+/** @brief Solve a linear system @f$Ax=b@f$ with the
+ *  preconditioned generalized minimal residual method.
+ *
+ *  @param A System matrix, should be invertible.
+ *  @param prcd Callback function for preconditioner @f$N@f$.
+ *  @param pdata Data for <tt>prcd</tt> callback function.
+ *  @param b Right-hand side vector.
+ *  @param x Initial guess, will be overwritten by approximate solution.
+ *  @param eps Relative accuracy @f$\epsilon@f$, the method stops if
+ *         @f$\|N(Ax-b)\|_2 \leq \epsilon \|N b\|_2@f$.
+ *  @param maxiter Maximal number of iterations. <tt>maxiter=0</tt>
+ *         means that the number of iterations is not bounded.
+ *  @param kmax Maximal dimension of Krylov subspace.
+ *  @returns Number of iterations. */
+uint
+solve_rpgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
     pcavector b, pavector x, real eps, uint maxiter, uint kmax);
 
 /** @} */

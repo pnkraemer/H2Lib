@@ -757,8 +757,13 @@ finish_gmres(addeval_t addeval, void *matrix, pcavector b,	/* Right-hand side */
   uninit_amatrix(qr_k);
 
   add_avector(1.0, rhat, x);
+  // printf("\nadded\n");
+  // // print_avector(x);
 
   init_gmres(addeval, matrix, b, x, rhat, q, kk, qr, tau);
+  // printf("\ninitialised again\n");
+  // // print_avector(x);
+
 }
 
 real
@@ -795,7 +800,7 @@ solve_gmres(addeval_t addeval, void *A, pavector b, pavector x,
       step_gmres(addeval, A, b, x, rhat, q, &kk, qr, tau);
       norm = residualnorm_gmres(rhat, kk);
 #ifndef NDEBUG
-      printf("  Residual: %.5e\t Iterations: %u\r", norm, j + i);
+      // printf("  Residual: %.5e\t Iterations: %u\r", norm, j + i);
       fflush(stdout);
 #endif
       if (norm <= accuracy) {
@@ -811,7 +816,7 @@ solve_gmres(addeval_t addeval, void *A, pavector b, pavector x,
     }
   }
 #ifndef NDEBUG
-  printf("\n");
+  // printf("\n");
 #endif
 
   del_avector(rhat);
@@ -827,7 +832,7 @@ solve_gmres(addeval_t addeval, void *A, pavector b, pavector x,
  * ------------------------------------------------------------ */
 
 void
-init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	    pavector x,		/* Approximate solution */
 	    pavector rhat,	/* Transformed residual */
 	    pavector q,		/* Next search direction */
@@ -852,7 +857,7 @@ init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pca
   /* Residual r in the first column of qr */
   r = init_column_avector(&tmp1, qr, 0);
   copy_avector(b, r);
-  prcd(pdata, r);
+//  prcd(pdata, x);
   addeval(-1.0, matrix, x, r);
   uninit_avector(r);
 
@@ -876,7 +881,7 @@ init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pca
 }
 
 void
-step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+step_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	    pavector x,		/* Approximate solution */
 	    pavector rhat,	/* Transformed residual */
 	    pavector q,		/* Next search direction */
@@ -902,7 +907,7 @@ step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pca
   /* (k+1)-th Krylov vector A q in the (k+1)-th column of qr */
   a = init_column_avector(&tmp1, qr, k + 1);
   clear_avector(a);
-  prcd(pdata, a);
+  prcd(pdata, q);
   addeval(1.0, matrix, q, a);
   uninit_avector(a);
 
@@ -943,7 +948,7 @@ step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pca
 }
 
 void
-finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+finish_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	      pavector x,	/* Approximate solution */
 	      pavector rhat,	/* Transformed residual */
 	      pavector q,	/* Next search direction */
@@ -979,8 +984,12 @@ finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, p
   uninit_amatrix(qr_k);
 
   add_avector(1.0, rhat, x);
+  // printf("\nadded\n");
+  // // print_avector(x);
 
-  init_pgmres_right(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
+  init_rpgmres(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
+  // printf("\ninitialised again\n");
+  // // print_avector(x);
 }
 
 
@@ -1003,7 +1012,7 @@ finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, p
 
 
 void
-init_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+init_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	    pavector x,		/* Approximate solution */
 	    pavector rhat,	/* Transformed residual */
 	    pavector q,		/* Next search direction */
@@ -1052,7 +1061,7 @@ init_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector
 }
 
 void
-step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+step_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	    pavector x,		/* Approximate solution */
 	    pavector rhat,	/* Transformed residual */
 	    pavector q,		/* Next search direction */
@@ -1119,7 +1128,7 @@ step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector
 }
 
 void
-finish_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
+finish_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavector b,	/* Right-hand side */
 	      pavector x,	/* Approximate solution */
 	      pavector rhat,	/* Transformed residual */
 	      pavector q,	/* Next search direction */
@@ -1156,7 +1165,7 @@ finish_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavect
 
   add_avector(1.0, rhat, x);
 
-  init_pgmres(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
+  init_lpgmres(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
 }
 
 real

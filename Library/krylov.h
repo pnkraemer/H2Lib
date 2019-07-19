@@ -602,7 +602,7 @@ residualnorm_gmres(pcavector rhat, uint k);
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 
@@ -639,7 +639,7 @@ init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+step_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 
@@ -649,7 +649,7 @@ step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @f$Q_{k+1}^* N A Q_k \widehat{x} = Q_{k+1}^* N r@f$ and performs the
  *  update @f$x \gets x + Q_k \widehat{x}@f$.
  *
- *  The function calls @ref init_pgmres to reset the iteration and
+ *  The function calls @ref init_lpgmres to reset the iteration and
  *  prepare for a restart.
  *
  *  @param addeval Callback function representing the matrix @f$A@f$.
@@ -670,7 +670,7 @@ step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+finish_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 
@@ -719,7 +719,7 @@ finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-init_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+init_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 
@@ -756,7 +756,7 @@ init_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+step_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 
@@ -766,7 +766,7 @@ step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @f$Q_{k+1}^* N A Q_k \widehat{x} = Q_{k+1}^* N r@f$ and performs the
  *  update @f$x \gets x + Q_k \widehat{x}@f$.
  *
- *  The function calls @ref init_pgmres to reset the iteration and
+ *  The function calls @ref init_lpgmres to reset the iteration and
  *  prepare for a restart.
  *
  *  @param addeval Callback function representing the matrix @f$A@f$.
@@ -787,7 +787,7 @@ step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *  @param tau Scaling factors of elementary reflectors,
  *         provided by @ref qrdecomp_amatrix. */
 HEADER_PREFIX void
-finish_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+finish_lpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
     pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
     pavector tau);
 

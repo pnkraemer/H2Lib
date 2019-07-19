@@ -122,11 +122,11 @@ main(int argc, char **argv)
     iter = solve_gmres_blockkernelmatrix_avector(bkm_a, tvec, res_h2, gmres_tol, gmres_maxit, gmres_k);
     printf("Number of iterations (blockkernelmatrix, no precon):\n\titer = %u\n", iter);
     clear_avector(res_a);
-    iter = solve_pgmres_blockkernelmatrix_avector(bkm_a, multi, precon, tvec, res_a, gmres_tol, gmres_maxit, gmres_k);
-    printf("Number of iterations (blockkernelmatrix, identity precon):\n\titer = %u\n", iter);
+    iter = solve_lpgmres_blockkernelmatrix_avector(bkm_a, multi, precon, tvec, res_a, gmres_tol, gmres_maxit, gmres_k);
+    printf("Number of iterations (blockkernelmatrix, left identity precon):\n\titer = %u\n", iter);
     clear_avector(res_h2);
-    iter = solve_pgmres_blockkernelmatrix_avector_right(bkm_a, multi, precon, tvec, res_h2, gmres_tol, gmres_maxit, gmres_k);
-    printf("Number of iterations (identity amatrix, bmat precon):\n\titer = %u\n", iter);
+    iter = solve_rpgmres_blockkernelmatrix_avector(bkm_a, multi, precon, tvec, res_h2, gmres_tol, gmres_maxit, gmres_k);
+    printf("Number of iterations (blockkernelmatrix, right identity precon):\n\titer = %u\n", iter);
     add_avector(-1.0, res_a, res_h2);
     discrep = norm2_avector(res_h2) / norm2_avector(res_a);
     printf("\nDiscrepancy between last two:\n\tdisc = %.1f\n", discrep);
