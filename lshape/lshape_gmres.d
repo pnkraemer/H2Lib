@@ -12,5 +12,5 @@ lshape/lshape_gmres.o: lshape/lshape_gmres.c Library/basic.h \
  Library/parameters.h Library/kernelmatrix.h Library/kernelfcts.h \
  Library/addon_kernelmatrix.h Library/kernelmatrix.h \
  Library/addon_krylovsolvers.h Library/krylovsolvers.h \
- Library/addon_kernelmatrix.h lshape/../lshape/auxiliary.h \
- Library/tri2d.h
+ Library/blockkernelmatrix.h Library/addon_kernelmatrix.h \
+ lshape/../lshape/auxiliary.h Library/tri2d.h

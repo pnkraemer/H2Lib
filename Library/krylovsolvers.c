@@ -229,6 +229,10 @@ uint
 solve_gmres_amatrix_avector(pcamatrix A, pcavector b, pavector x, real eps,
 			    uint maxiter, uint kmax)
 {
+	if(kmax > A->rows){
+		kmax = A->rows;
+		printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
+	}
   return solve_gmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
 			     b, x, eps, maxiter, kmax);
 }
@@ -267,9 +271,77 @@ solve_gmres_dh2matrix_avector(pcdh2matrix A, pcavector b, pavector x,
 			     maxiter, kmax);
 }
 
+uint
+solve_gmres_blockkernelmatrix_avector(pcblockkernelmatrix A, pcavector b, pavector x, real eps,
+    uint maxiter, uint kmax)
+{
+	if(kmax > A->dof){
+		kmax = A->dof;
+		printf("\nkmax > A->dof. Using kmax = A->dof instead...\n");
+	}
+  return solve_gmres_avector((void *) A,
+			     (addeval_t) addeval_blockkernelmatrix_avector, b, x, eps,
+			     maxiter, kmax);
+}
+
 /* ------------------------------------------------------------
  * Preconditioned generalized minimal residual method
  * ------------------------------------------------------------ */
+
+uint
+solve_pgmres_avector_right(void *A, addeval_t addeval_A, prcd_t prcd,
+		     void *pdata, pcavector b, pavector x, real eps,
+		     uint maxiter, uint kmax)
+{
+  pavector  rhat, r, q, tau;
+  pamatrix  qr;
+  real      norm, error;
+  uint      n, iter, k;
+
+  n = x->dim;
+
+  assert(b->dim == n);
+
+  rhat = new_avector(n);
+  r = new_avector(n);
+  q = new_avector(n);
+  qr = new_amatrix(n, kmax);
+  tau = new_avector(kmax);
+
+  copy_avector(b, r);
+//  prcd(pdata, r);			/* Counterproductive for right preconditioning???*/
+  norm = norm2_avector(r);
+
+  init_pgmres_right(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+  error = residualnorm_pgmres(rhat, k);
+
+  iter = 0;
+  while (error > eps * norm && iter + 1 != maxiter) {
+    if (k + 1 >= kmax) {
+      finish_pgmres_right(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+    }
+
+    step_pgmres_right(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+    error = residualnorm_pgmres(rhat, k);
+
+    iter++;
+  }
+
+  if (k > 0)
+    finish_pgmres_right(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+
+  del_avector(tau);
+  del_amatrix(qr);
+  del_avector(q);
+  del_avector(r);
+  del_avector(rhat);
+
+  return iter;
+}
+
+
+
+
 
 uint
 solve_pgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
@@ -292,7 +364,7 @@ solve_pgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
   tau = new_avector(kmax);
 
   copy_avector(b, r);
-  prcd(pdata, r);
+//  prcd(pdata, r);
   norm = norm2_avector(r);
 
   init_pgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
@@ -322,11 +394,16 @@ solve_pgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
   return iter;
 }
 
+
 uint
 solve_pgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata,
 			     pcavector b, pavector x, real eps, uint maxiter,
 			     uint kmax)
 {
+	if(kmax > A->rows){
+		kmax = A->rows;
+		printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
+	}
   return solve_pgmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
 			      prcd, pdata, b, x, eps, maxiter, kmax);
 }
@@ -367,5 +444,25 @@ solve_pgmres_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
 {
   return solve_pgmres_avector((void *) A,
 			      (addeval_t) addeval_dh2matrix_avector, prcd,
+			      pdata, b, x, eps, maxiter, kmax);
+}
+
+uint
+solve_pgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
+			       pcavector b, pavector x, real eps,
+			       uint maxiter, uint kmax)
+{
+  return solve_pgmres_avector((void *) A,
+			      (addeval_t) addeval_blockkernelmatrix_avector, prcd,
+			      pdata, b, x, eps, maxiter, kmax);
+}
+
+uint
+solve_pgmres_blockkernelmatrix_avector_right(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
+			       pcavector b, pavector x, real eps,
+			       uint maxiter, uint kmax)
+{
+  return solve_pgmres_avector_right((void *) A,
+			      (addeval_t) addeval_blockkernelmatrix_avector, prcd,
 			      pdata, b, x, eps, maxiter, kmax);
 }

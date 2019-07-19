@@ -9,7 +9,8 @@ Library/laplaceoclbem3d.o: Library/laplaceoclbem3d.c Library/oclbem3d.h \
  Library/clusteroperator.h Library/uniform.h Library/h2matrix.h \
  Library/dcluster.h Library/dblock.h Library/dclusterbasis.h \
  Library/dclusteroperator.h Library/dh2matrix.h Library/duniform.h \
- Library/krylovsolvers.h Library/hcoarsen.h Library/harith.h \
+ Library/krylovsolvers.h Library/blockkernelmatrix.h \
+ Library/kernelmatrix.h Library/hcoarsen.h Library/harith.h \
  Library/h2update.h Library/h2compression.h Library/aca.h \
  Library/macrosurface3d.h Library/surface3d.h Library/singquad2d.h \
  Library/laplacebem3d.cl

@@ -8,4 +8,5 @@ Tests/test_tri2dp1.o: Tests/test_tri2dp1.c Library/tri2dp1.h \
  Library/block.h Library/rkmatrix.h Library/h2matrix.h Library/uniform.h \
  Library/clusterbasis.h Library/clusteroperator.h Library/dh2matrix.h \
  Library/dblock.h Library/dcluster.h Library/duniform.h \
- Library/dclusterbasis.h Library/dclusteroperator.h Library/basic.h
+ Library/dclusterbasis.h Library/dclusteroperator.h \
+ Library/blockkernelmatrix.h Library/kernelmatrix.h Library/basic.h

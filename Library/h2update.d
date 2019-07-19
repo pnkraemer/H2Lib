@@ -11,5 +11,6 @@ Library/h2update.o: Library/h2update.c Library/h2update.h \
  Library/singquad1d.h Library/laplacebem3d.h Library/bem3d.h \
  Library/dcluster.h Library/dblock.h Library/dclusterbasis.h \
  Library/dclusteroperator.h Library/dh2matrix.h Library/duniform.h \
- Library/krylovsolvers.h Library/macrosurface3d.h Library/surface3d.h \
+ Library/krylovsolvers.h Library/blockkernelmatrix.h \
+ Library/kernelmatrix.h Library/macrosurface3d.h Library/surface3d.h \
  Library/singquad2d.h

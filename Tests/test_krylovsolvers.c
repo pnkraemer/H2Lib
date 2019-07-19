@@ -1,4 +1,6 @@
-
+/*
+ * TODO: blockkernelmatrix support
+*/
 #include <stdio.h>
 #include "amatrix.h"
 #include "krylovsolvers.h"

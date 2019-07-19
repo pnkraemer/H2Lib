@@ -248,9 +248,9 @@ endif
 $(PROGRAMS_tests): %: %.o
 ifdef BRIEF_OUTPUT
 	@echo Linking $@
-	@$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS) 
+	@$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS)
 else
-	$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS) 
+	$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS)
 endif
 
 $(PROGRAMS_tests) $(PROGRAMS_tools): libh2.a
@@ -275,9 +275,9 @@ $(OBJECTS_tests): Makefile
 $(PROGRAMS_examples): %: %.o
 ifdef BRIEF_OUTPUT
 	@echo Linking $@
-	@$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS) 
+	@$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS)
 else
-	$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS) 
+	$(CC) $(LDFLAGS) $< -o $@ -lh2 $(LIBS)
 endif
 
 $(PROGRAMS_examples): libh2.a

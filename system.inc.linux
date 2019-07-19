@@ -17,7 +17,7 @@ RM = rm
 #
 CC = gcc
 GCC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -Wextra -pedantic
 LDFLAGS = -Wl,-L,.,-R,.
 LIBS =
 

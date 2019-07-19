@@ -6,4 +6,7 @@ Tests/test_blockkernelmatrix.o: Tests/test_blockkernelmatrix.c \
  Library/clustergeometry.h Library/eigensolvers.h Library/hmatrix.h \
  Library/rkmatrix.h Library/sparsematrix.h Library/sparsepattern.h \
  Library/uniform.h Library/clusterbasis.h Library/clusteroperator.h \
- Library/kernelfcts.h Library/blockkernelmatrix.h Library/kernelmatrix.h
+ Library/kernelfcts.h Library/blockkernelmatrix.h Library/kernelmatrix.h \
+ Library/krylovsolvers.h Library/dh2matrix.h Library/dblock.h \
+ Library/dcluster.h Library/duniform.h Library/dclusterbasis.h \
+ Library/dclusteroperator.h Library/blockkernelmatrix.h

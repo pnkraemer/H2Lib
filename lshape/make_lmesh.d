@@ -12,5 +12,5 @@ lshape/make_lmesh.o: lshape/make_lmesh.c Library/basic.h \
  Library/parameters.h Library/kernelmatrix.h Library/kernelfcts.h \
  Library/addon_kernelmatrix.h Library/kernelmatrix.h \
  Library/addon_krylovsolvers.h Library/krylovsolvers.h \
- Library/addon_kernelmatrix.h lshape/../lshape/auxiliary.h \
- Library/tri2d.h
+ Library/blockkernelmatrix.h Library/addon_kernelmatrix.h \
+ lshape/../lshape/auxiliary.h Library/tri2d.h

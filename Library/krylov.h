@@ -542,7 +542,7 @@ step_gmres(addeval_t addeval, void *matrix, pcavector b, pavector x,
  *
  *  The function calls @ref init_gmres to reset the iteration and
  *  prepare for a restart.
- *  
+ *
  *  @param addeval Callback function representing the matrix @f$A@f$.
  *  @param matrix Data for the <tt>addeval</tt> callback.
  *  @param b Right-hand side vector @f$b@f$.
@@ -573,6 +573,123 @@ residualnorm_gmres(pcavector rhat, uint k);
 /* ------------------------------------------------------------
  * Preconditioned generalized minimal residual method (GMRES)
  * ------------------------------------------------------------ */
+
+/** @brief Initialize preconditioned GMRES.
+ *
+ *  The parameters are prepared for solving @f$N A x = N b@f$ with
+ *  the GMRES method.
+ *
+ *  The maximal dimension of the Krylov subspace is determined
+ *  by the number of columns of <tt>qr</tt>:
+ *  for a <tt>k</tt>-dimensional subspace, <tt>qr->cols==k+1</tt>
+ *  is required.
+ *
+ *  @param addeval Callback function representing the matrix @f$A@f$.
+ *  @param matrix Data for the <tt>addeval</tt> callback.
+ *  @param prcd Callback function representing the preconditioner @f$N@f$.
+ *  @param pdata Data for the <tt>prcd</tt> callback.
+ *  @param b Right-hand side vector @f$b@f$.
+ *  @param x Initial guess for the solution @f$x@f$, will eventually
+ *         be replaced by an improved approximation.
+ *  @param rhat Transformed residual. The absolute value of
+ *         <tt>rhat[*kk]</tt> is the Euclidean norm of the
+ *         preconditioned residual.
+ *  @param q Next vector of the Krylov basis, constructed by
+ *         Householder's elementary reflectors.
+ *  @param kk Pointer to current dimension of the Krylov space.
+ *  @param qr Representation of the Arnoldi basis @f$Q_{k+1}@f$ and the
+ *         transformed matrix @f$Q_{k+1}^* A Q_k@f$.
+ *  @param tau Scaling factors of elementary reflectors,
+ *         provided by @ref qrdecomp_amatrix. */
+HEADER_PREFIX void
+init_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+    pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
+    pavector tau);
+
+/** @brief One step of the preconditioned GMRES method.
+ *
+ *  If <tt>*kk+1 >= qr->cols</tt>, there is no room for the next
+ *  Arnoldi basis vector and the function returns immediately.
+ *  It can be restarted using @ref finish_gmres.
+ *
+ *  Otherwise a new vector is added to the Arnoldi basis and the
+ *  matrix @f$Q_{k+1}^* N A Q_k@f$ is updated.
+ *
+ *  @remark This function currently makes no use of <tt>b</tt>
+ *  and does not update <tt>x</tt>. The current preconditioned residual
+ *  can be tracked via <tt>rhat[*kk]</tt>. Once it is sufficiently small,
+ *  the improved solution <tt>x</tt> can be obtained by using
+ *  @ref finish_gmres.
+ *
+ *  @param addeval Callback function representing the matrix @f$A@f$.
+ *  @param matrix Data for the <tt>addeval</tt> callback.
+ *  @param prcd Callback function representing the preconditioner @f$N@f$.
+ *  @param pdata Data for the <tt>prcd</tt> callback.
+ *  @param b Right-hand side vector @f$b@f$.
+ *  @param x Initial guess for the solution @f$x@f$, will eventually
+ *         be replaced by an improved approximation.
+ *  @param rhat Transformed residual. The absolute value of
+ *         <tt>rhat[*kk]</tt> is the Euclidean norm of the
+ *         preconditioned residual.
+ *  @param q Next vector of the Krylov basis, constructed by
+ *         Householder's elementary reflectors.
+ *  @param kk Pointer to current dimension of the Krylov space.
+ *  @param qr Representation of the Arnoldi basis @f$Q_{k+1}@f$ and the
+ *         transformed matrix @f$Q_{k+1}^* A Q_k@f$.
+ *  @param tau Scaling factors of elementary reflectors,
+ *         provided by @ref qrdecomp_amatrix. */
+HEADER_PREFIX void
+step_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+    pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
+    pavector tau);
+
+/** @brief Completes or restarts the preconditioned GMRES method.
+ *
+ *  Solves the least-squares problem
+ *  @f$Q_{k+1}^* N A Q_k \widehat{x} = Q_{k+1}^* N r@f$ and performs the
+ *  update @f$x \gets x + Q_k \widehat{x}@f$.
+ *
+ *  The function calls @ref init_pgmres to reset the iteration and
+ *  prepare for a restart.
+ *
+ *  @param addeval Callback function representing the matrix @f$A@f$.
+ *  @param matrix Data for the <tt>addeval</tt> callback.
+ *  @param prcd Callback function representing the preconditioner @f$N@f$.
+ *  @param pdata Data for the <tt>prcd</tt> callback.
+ *  @param b Right-hand side vector @f$b@f$.
+ *  @param x Initial guess for the solution @f$x@f$, will eventually
+ *         be replaced by an improved approximation.
+ *  @param rhat Transformed residual. The absolute value of
+ *         <tt>rhat[*kk]</tt> is the Euclidean norm of the
+ *         preconditioned residual.
+ *  @param q Next vector of the Krylov basis, constructed by
+ *         Householder's elementary reflectors.
+ *  @param kk Pointer to current dimension of the Krylov space.
+ *  @param qr Representation of the Arnoldi basis @f$Q_{k+1}@f$ and the
+ *         transformed matrix @f$Q_{k+1}^* A Q_k@f$.
+ *  @param tau Scaling factors of elementary reflectors,
+ *         provided by @ref qrdecomp_amatrix. */
+HEADER_PREFIX void
+finish_pgmres_right(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
+    pcavector b, pavector x, pavector rhat, pavector q, uint *kk, pamatrix qr,
+    pavector tau);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /** @brief Initialize preconditioned GMRES.
  *
@@ -651,7 +768,7 @@ step_pgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata,
  *
  *  The function calls @ref init_pgmres to reset the iteration and
  *  prepare for a restart.
- *  
+ *
  *  @param addeval Callback function representing the matrix @f$A@f$.
  *  @param matrix Data for the <tt>addeval</tt> callback.
  *  @param prcd Callback function representing the preconditioner @f$N@f$.

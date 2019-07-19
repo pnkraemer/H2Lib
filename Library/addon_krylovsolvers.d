@@ -8,5 +8,5 @@ Library/addon_krylovsolvers.o: Library/addon_krylovsolvers.c \
  Library/h2matrix.h Library/uniform.h Library/clusterbasis.h \
  Library/clusteroperator.h Library/dh2matrix.h Library/dblock.h \
  Library/dcluster.h Library/duniform.h Library/dclusterbasis.h \
- Library/dclusteroperator.h Library/kernelmatrix.h \
- Library/addon_kernelmatrix.h
+ Library/dclusteroperator.h Library/blockkernelmatrix.h \
+ Library/kernelmatrix.h Library/addon_kernelmatrix.h

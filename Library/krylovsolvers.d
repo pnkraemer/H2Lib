@@ -7,4 +7,5 @@ Library/krylovsolvers.o: Library/krylovsolvers.c Library/krylovsolvers.h \
  Library/rkmatrix.h Library/h2matrix.h Library/uniform.h \
  Library/clusterbasis.h Library/clusteroperator.h Library/dh2matrix.h \
  Library/dblock.h Library/dcluster.h Library/duniform.h \
- Library/dclusterbasis.h Library/dclusteroperator.h
+ Library/dclusterbasis.h Library/dclusteroperator.h \
+ Library/blockkernelmatrix.h Library/kernelmatrix.h
