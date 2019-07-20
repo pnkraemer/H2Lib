@@ -842,7 +842,7 @@ init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavecto
 {				/* Scaling factors for elementary reflectors */
   avector   tmp1;
   amatrix   tmp2;
-  pavector  r;
+  pavector  r, xcopy;
   pamatrix  qr_k;
   uint      kmax = qr->cols;
 
@@ -856,9 +856,11 @@ init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavecto
 
   /* Residual r in the first column of qr */
   r = init_column_avector(&tmp1, qr, 0);
+  xcopy = new_avector(x->dim);
   copy_avector(b, r);
-//  prcd(pdata, x);
-  addeval(-1.0, matrix, x, r);
+  copy_avector(x, xcopy);
+  prcd(pdata, xcopy);
+  addeval(-1.0, matrix, xcopy, r);
   uninit_avector(r);
 
   /* Compute factorization */
@@ -878,6 +880,7 @@ init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavecto
 
   /* Set dimension */
   *kk = 0;
+  del_avector(xcopy);
 }
 
 void
@@ -984,12 +987,12 @@ finish_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavec
   uninit_amatrix(qr_k);
 
   add_avector(1.0, rhat, x);
-  // printf("\nadded\n");
-  // // print_avector(x);
+   //printf("\nadded\n");
+   //print_avector(x);
 
   init_rpgmres(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
-  // printf("\ninitialised again\n");
-  // // print_avector(x);
+   //printf("\ninitialised again\n");
+  // print_avector(x);
 }
 
 

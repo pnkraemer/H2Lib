@@ -335,12 +335,13 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
   	// print_avector(x);
 
     }
-
     step_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
 	// printf("\nstepped\n");
 	// print_avector(x);
 
     error = residualnorm_pgmres(rhat, k);
+    printf("  Step %u: dimension %u, preconditioned residual %.2e\n",
+	   iter, k, ABS(rhat->v[k]));
 
     iter++;
   }
@@ -349,6 +350,7 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
     finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
   // printf("\nfinished\n");
   // print_avector(x);
+
 	}
   del_avector(tau);
   del_amatrix(qr);
