@@ -1,7 +1,7 @@
 /*
 Run with either:
 
-./lshape/lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15
+./lshape/lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15 1e-5
 ./lshape/lshape_gmres /home/kraemer/Programmieren/txts/demlow/ 129 56 15
 
 All rights reserved, Nicholas Krämer, 2019
@@ -251,7 +251,7 @@ main(int argc, char **argv)
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
 	evalpoints = 50000;           /* number of points for RMSE estimate*/
-	gmres_tol = 1e-10;
+	gmres_tol = atof(argv[5]);
 	gmres_maxit = 5000;
 	gmres_kk = 20;
 	cpos = 1;
