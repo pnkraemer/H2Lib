@@ -17,9 +17,8 @@ All rights reserved, Nicholas Krämer, 2019
 #include "parameters.h"
 #include "kernelmatrix.h"
 #include "kernelfcts.h"
-#include "addon_kernelmatrix.h"
-#include "addon_krylovsolvers.h"
-#include "../lshape/auxiliary.h"
+#include "blockkernelmatrix.h"
+#include "krylovsolvers.h"
 #include "tri2d.h"
 
 static void
@@ -34,15 +33,10 @@ multi_sp(void *pdata, pavector r)
 }
 
 
-
-
 field
 interpolant(field x, field y){
 	return x + y;
 }
-
-
-
 
 void
 make_rhs(pavector rhsvec, pclustergeometry cg)
@@ -64,7 +58,6 @@ make_rhs(pavector rhsvec, pclustergeometry cg)
 	setentry_avector(rhsvec, dim - 3 + i, 0.0);
 
 }
-
 
 static void
 loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *string)
@@ -92,7 +85,78 @@ loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *string)
 	fclose(meshfile);
 }
 
-static real
+HEADER_PREFIX psparsematrix
+loadfromtxt_precon(uint N, uint n, char *filepath)
+{
+    real val;
+    uint colidx, rowidx;
+    uint i;
+    char strVals[150], strRowIdx[150], strColIdx[150];
+    char filepath_val[250], filepath_row[250], filepath_col[250];
+    pavector preconval, preconrow, preconcol;
+    psparsepattern sp;
+    psparsematrix spm;
+
+    preconval = new_avector(n*N);
+    preconrow = new_avector(n*N);
+    preconcol = new_avector(n*N);
+
+    strcpy(filepath_val, filepath);
+    strcpy(filepath_row, filepath);
+    strcpy(filepath_col, filepath);
+    sprintf(strVals, "precon/precon_val_N%d_n%d.txt", N, n);
+    sprintf(strRowIdx, "precon/precon_row_N%d_n%d.txt", N, n);
+    sprintf(strColIdx, "precon/precon_col_N%d_n%d.txt", N, n);
+    strcat(filepath_val, strVals);
+    strcat(filepath_row, strRowIdx);
+    strcat(filepath_col, strColIdx);
+
+    FILE *myFileVals, *myFileRowIdx, *myFileColIdx;
+    myFileVals = fopen(filepath_val, "r");
+    myFileRowIdx = fopen(filepath_row, "r");
+    myFileColIdx = fopen(filepath_col, "r");
+    if(myFileRowIdx == NULL || myFileColIdx == NULL || myFileVals == NULL){
+        printf("Error reading file\n");
+        exit(0);
+    }
+
+    sp = new_sparsepattern(N + 3, N + 3);
+    for(i = 0; i < n*N; i++){
+            fscanf(myFileVals, "%lf ", &val);
+            fscanf(myFileRowIdx, "%u ", &rowidx);
+            fscanf(myFileColIdx, "%u ", &colidx);
+            setentry_avector(preconval, i, val);
+            setentry_avector(preconrow, i, rowidx);
+            setentry_avector(preconcol, i, colidx);
+            addnz_sparsepattern(sp, rowidx, colidx);
+    }
+    for(uint i = 0; i < 3; i++){
+        addnz_sparsepattern(sp, N + i, N + i);
+    }
+    fclose(myFileVals);
+    fclose(myFileColIdx);
+    fclose(myFileRowIdx);
+
+    spm = new_zero_sparsematrix(sp);
+    for(i = 0; i < n*N; i++){
+        val = getentry_avector(preconval, i);
+        rowidx = getentry_avector(preconrow, i);
+        colidx = getentry_avector(preconcol, i);
+        setentry_sparsematrix(spm, rowidx, colidx, val);
+    }
+    for(uint i = 0; i < 3; i++){
+        setentry_sparsematrix(spm, N+i, N+i, 1.0);
+    }
+
+    del_sparsepattern(sp);
+    del_avector(preconval);
+    del_avector(preconrow);
+    del_avector(preconcol);
+    return spm;
+}
+
+
+INLINE_PREFIX real /* Not happy with the name of the function */
 rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
 
 	pavector    rowofkm;
@@ -132,11 +196,8 @@ rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
 	}
 
 	del_avector(rowofkm);
-
 	return REAL_SQRT(rmse / (1.0 * num_evalpts));
 }
-
-
 
 int
 main(int argc, char **argv)
@@ -148,18 +209,15 @@ main(int argc, char **argv)
 	pcluster            root;
 	pblock              broot;
 	pclusterbasis       cb;
-	ph2matrix           Gh1, Gh2;
 	pstopwatch          sw;
-	ptruncmode          tm;
-	pamatrix            pb;
 	psparsematrix       precon_sp;
 	pavector            rhs, x0;
 	pavector            sol;
-	pamatrix            bigmat;
+	pamatrix            fullmat;
 	pavector            testvec, res_a, res_h2;
 	pamatrix            precon_full, kp;
 	pavector            sol2;
-	pblockkernelmatrix	bkm;
+	pblockkernelmatrix	bkm, bkm_uncompressed, bkm_full;
 	real                mvm_error;
 
 	uint                *idx;
@@ -168,7 +226,6 @@ main(int argc, char **argv)
 	uint                dim;
 	size_t              sz;
 	real                eta;
-	real                eps;
 	real                t_setup;
 	uint                i;
 	uint                n;
@@ -181,8 +238,7 @@ main(int argc, char **argv)
 	real                gmres_tol;
 	uint                gmres_kk, gmres_maxit;
 	real                error_fullgmres;
-	bool 				use_h2;
-
+    real                h2compression_acc;
 	/* Parameters */
 	sw = new_stopwatch();
 	strcpy(filepath, argv[1]);    /* path to mesh and precon*/
@@ -191,16 +247,15 @@ main(int argc, char **argv)
 	m = atoi(argv[4]);            /* interpolation order */
 	assert(points>0 && n > 0 && m > 0);
 	lsz = 2*m*m;                  /* leafsize prop. to interpolation order */
-	eps = pow(10.0, -1.0 * m);    /* recompression tolerance proportional to interpolation order */
 	eta = 2.0;                    /* generic admissibility condition */
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
-	evalpoints = 10000;           /* number of points for RMSE estimate*/
+	evalpoints = 50000;           /* number of points for RMSE estimate*/
 	gmres_tol = 1e-10;
 	gmres_maxit = 5000;
 	gmres_kk = 20;
-	use_h2 = false;
 	cpos = 1;
+    h2compression_acc = 1e-2 * gmres_tol;
 
 	(void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
 	start_stopwatch(sw);
@@ -217,20 +272,16 @@ main(int argc, char **argv)
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
 
-
-
-
 	(void) printf("Creating clustergeometry, cluster and block tree\n");
 	start_stopwatch(sw);
 	cg = creategeometry_kernelmatrix(km);
 	idx = (uint *) allocmem(sizeof(uint) * (points));
 	for(i=0; i<points; i++)
 	idx[i] = i;
-	root = build_cluster(cg, points, idx, lsz, H2_REGULAR);
+	root = build_cluster(cg, points, idx, lsz, H2_ADAPTIVE);
 	broot = build_strict_block(root, root, &eta, admissible_2_cluster);
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
-
 
 	(void) printf("Creating and filling cluster basis\n");
 	start_stopwatch(sw);
@@ -252,42 +303,18 @@ main(int argc, char **argv)
 	"\t%.1f KB/DoF\n",
 	t_setup, sz / 1048576.0, sz / 1024.0 / points);
 
-
-
-	(void) printf("Creating, filling and recompressing H^2-matrix (and polblock)\n");
+	(void) printf("Creating, filling and compressing H^2-matrix (and polblock)\n");
 	start_stopwatch(sw);
-	bkm = build_from_kernelmatrix_blockkernelmatrix(km, use_h2, 0, 0);
-
-
-/*
-	Gh1 = build_from_block_h2matrix(broot, cb, cb);
-	fill_h2matrix_kernelmatrix(km, Gh1);
-	tm = new_releucl_truncmode();
-	Gh2 = compress_h2matrix_h2matrix(Gh1, false, false, tm, eps);
-	pb = new_amatrix(points, 1 + dim);
-	assemble_pblock(km, pb);
-
+	bkm_uncompressed = build_from_kernelmatrix_h2_blockkernelmatrix(km, broot, cb);
+    bkm = compress_blockkernelmatrix(bkm_uncompressed, h2compression_acc);
 	t_setup = stop_stopwatch(sw);
-	sz = getsize_h2matrix(Gh2);
+	sz = getsize_blockkernelmatrix(bkm);
 	(void) printf("\t%.2f seconds\n"
-	"\t%.1f MB\n"
+	"\t%.1f MB (%.1f MB for full matrix)\n"
 	"\t%.1f KB/DoF\n",
-	t_setup, sz / 1048576.0, sz / 1024.0 / points);
-*/
+	t_setup, sz / 1048576.0, points*points*8.0/1048576.0, sz / 1024.0 / points);
 
-/*  (void) printf("Filling reference matrix\n");
-	start_stopwatch(sw);
-	bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
-	assemble_big_kernelmatrix(km, bigmat);
-	t_setup = stop_stopwatch(sw);
-	sz = getsize_amatrix(bigmat);
-	(void) printf("\t%.2f seconds\n"
-	"\t%.1f MB\n"
-	"\t%.1f KB/DoF\n",
-	t_setup, sz / 1048576.0, sz / 1024.0 / points);
-*/
-
-	(void) printf("Computing GMRES\n");
+	(void) printf("Preparing, solving and evaluating linear system\n");
 	start_stopwatch(sw);
 	rhs = new_zero_avector(points + 1 + dim);
 	make_rhs(rhs, cg);
@@ -295,52 +322,53 @@ main(int argc, char **argv)
 	x0 = new_zero_avector(points + dim + 1);
 	iter = solve_rpgmres_blockkernelmatrix_avector(bkm, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
 	sol = new_zero_avector(points + dim + 1);
-//	print_avector(x0);
 	addeval_sparsematrix_avector(1.0, precon_sp, x0, sol);
 	addeval_blockkernelmatrix_avector(-1.0, bkm, sol, rhs);
 	error = norm2_avector(rhs)/error;
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
-	(void) printf("\t%u GMRES iterations\n", iter);
+	(void) printf("\t%u GMRES iterations with the H2-matrix\n", iter);
 	(void) printf("\t%.1e relative error", error);
 
 
 
 
 	/* Check: if GMRES fails -> what was the issue?
-	 * h2approx or
-	 * bad preconditioning */
+	 * h2approx or bad preconditioning */
 	sol2 = new_zero_avector(x0->dim);
-	if(error > gmres_tol){
-//	if(1){
-		/* Assemble big matrix */
+	if((error > gmres_tol || error!=error )&& bkm->dof < 65000)  /* Dont want to assemble too large matrices */
+//	if(1)
+    {
 		(void) printf(" ->TOO MUCH ERROR!");
 		(void) printf("\n--------------------------------------------------");
 		(void) printf("\nChecking reference matrix\n");
 		start_stopwatch(sw);
-		bigmat = new_amatrix(points + 1 + dim, points + 1 + dim);
-		convert_blockkernelmatrix_amatrix(bkm, bigmat);
 
-		/* Check approximation error of H2Matrix */
-		testvec = new_avector(bigmat->rows);
-		res_a = new_zero_avector(bigmat->rows);
-		res_h2 = new_zero_avector(bigmat->rows);
+		/* Assemble big matrix */
+        bkm_full = build_from_kernelmatrix_full_blockkernelmatrix(km);
+		fullmat = new_amatrix(bkm_full->dof, bkm_full->dof);
+		convert_blockkernelmatrix_amatrix(bkm_full, fullmat);
+
+		/* Check approximation quality of H2Matrix */
+		testvec = new_avector(fullmat->rows);
+		res_a = new_zero_avector(fullmat->rows);
+		res_h2 = new_zero_avector(fullmat->rows);
 		random_avector(testvec);
-		addeval_amatrix_avector(1.0, bigmat, testvec, res_a);
+		addeval_amatrix_avector(1.0, fullmat, testvec, res_a);
 		addeval_blockkernelmatrix_avector(1.0, bkm, testvec, res_h2);
 		add_avector(-1.0, res_a, res_h2);
 		mvm_error = norm2_avector(res_h2)/norm2_avector(res_a);
 
 
-		/* Check GMRES Functionality */
-		precon_full = new_zero_amatrix(bigmat->rows, bigmat->rows);
-		kp = new_zero_amatrix(bigmat->rows, bigmat->rows);
+		/* Check GMRES functionality */
+		precon_full = new_zero_amatrix(fullmat->rows, fullmat->rows);
+		kp = new_zero_amatrix(fullmat->rows, fullmat->rows);
 		add_sparsematrix_amatrix(1.0, 0, precon_sp, precon_full);
-		addmul_amatrix(1.0, 0, bigmat, 0, precon_full, kp);
+		addmul_amatrix(1.0, 0, fullmat, 0, precon_full, kp);
 		clear_avector(x0);
 		make_rhs(rhs, cg);
 		error = norm2_avector(rhs);
-//		iter = solve_rpgmres_amatrix_avector(bigmat, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
+//		iter = solve_rpgmres_amatrix_avector(fullmat, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
 		iter = solve_gmres_amatrix_avector(kp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
 	// print_avector(x0);
 		addeval_amatrix_avector(-1.0, kp, x0, rhs);
@@ -353,7 +381,7 @@ main(int argc, char **argv)
 		} else{
 			printf(" ->GOOD!\n");
 		}
-		(void) printf("\t%u GMRES iterations\n", iter);
+		(void) printf("\t%u GMRES iterations with the full matrix\n", iter);
 		(void) printf("\t%.1e relative GMRES error", error_fullgmres);
 		if(error_fullgmres > gmres_tol){
 			printf(" ->BAD!");
@@ -366,9 +394,10 @@ main(int argc, char **argv)
 		del_avector(testvec);
 		del_avector(res_a);
 		del_avector(res_h2);
-		del_amatrix(bigmat);
+		del_amatrix(fullmat);
 		del_amatrix(precon_full);
 		del_amatrix(kp);
+		del_blockkernelmatrix(bkm_full);
 	}
 
 
@@ -377,43 +406,45 @@ main(int argc, char **argv)
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\n\t%.2f seconds\n", t_setup);
 	currentRelError = rmse_onthefly(sol, km, evalpoints);
-	(void) printf("\t%.1e rmse\n", currentRelError);
+	(void) printf("\t%.2e rmse\n", currentRelError);
 	if(error > gmres_tol){
 		currentRelError = rmse_onthefly(sol2, km, evalpoints);
-		(void) printf("\t(%.1e rmse with full matrix)\n\n", currentRelError);
+		(void) printf("\t(%.2e rmse with full matrix)\n\n", currentRelError);
 	}
 
 
 
 
 
-/*  cairo_surface_t *surface_h2mat = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1920, 1080);
-	cairo_t *cr_h2mat = cairo_create(surface_h2mat);
-	draw_cairo_h2matrix(cr_h2mat, Gh2, 1, 0);
-	cairo_surface_write_to_png (surface_h2mat, "./lshape/figures/h2m.png");
-	cairo_destroy(cr_h2mat);
-	cairo_surface_destroy(surface_h2mat);
-*/
+	if(bkm->h2kmat==false)
+		del_clusterbasis(cb);
 
+	del_blockkernelmatrix(bkm_uncompressed);
 	del_blockkernelmatrix(bkm);
 	del_avector(rhs);
 	del_avector(x0);
 	del_avector(sol);
 	del_avector(sol2);
 	del_sparsematrix(precon_sp);
-//	del_amatrix(pb);
 	del_kernelmatrix(km);
 	del_clustergeometry(cg);
 	del_cluster(root);
 	del_block(broot);
-//	del_h2matrix(Gh1);
-//	del_h2matrix(Gh2);
 	del_stopwatch(sw);
-//	del_truncmode(tm);
-	if(use_h2==false)
-		del_clusterbasis(cb);
 	freemem(idx);
 
 	uninit_h2lib();
 	return 0;
 }
+
+
+
+/*  FOR POTENTIAL LATER USE:
+
+    cairo_surface_t *surface_h2mat = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 1920, 1080);
+	cairo_t *cr_h2mat = cairo_create(surface_h2mat);
+	draw_cairo_h2matrix(cr_h2mat, Gh2, 1, 0);
+	cairo_surface_write_to_png (surface_h2mat, "./lshape/figures/h2m.png");
+	cairo_destroy(cr_h2mat);
+	cairo_surface_destroy(surface_h2mat);
+*/

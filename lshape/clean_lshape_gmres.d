@@ -10,7 +10,6 @@ lshape/clean_lshape_gmres.o: lshape/clean_lshape_gmres.c Library/basic.h \
  Library/dblock.h Library/dcluster.h Library/duniform.h \
  Library/dclusterbasis.h Library/dclusteroperator.h Library/harith.h \
  Library/parameters.h Library/kernelmatrix.h Library/kernelfcts.h \
- Library/addon_kernelmatrix.h Library/kernelmatrix.h \
- Library/addon_krylovsolvers.h Library/krylovsolvers.h \
- Library/blockkernelmatrix.h Library/addon_kernelmatrix.h \
- lshape/../lshape/auxiliary.h Library/tri2d.h
+ Library/blockkernelmatrix.h Library/kernelmatrix.h Library/h2arith.h \
+ Library/h2compression.h Library/h2update.h Library/krylovsolvers.h \
+ Library/blockkernelmatrix.h Library/tri2d.h

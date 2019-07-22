@@ -722,6 +722,10 @@ conjugate_amatrix(pamatrix a)
       aa[i + j * ld] = CONJ(aa[i + j * ld]);
     }
   }
+#else
+  /* Compiler complains about unused parameter if USE_COMPLEX is not defined */
+  uint satisfy_compiler = a->rows;
+  satisfy_compiler++;
 #endif
 }
 

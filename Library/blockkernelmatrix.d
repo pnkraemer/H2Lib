@@ -6,4 +6,5 @@ Library/blockkernelmatrix.o: Library/blockkernelmatrix.c \
  Library/clusteroperator.h Library/uniform.h Library/rkmatrix.h \
  Library/blockkernelmatrix.h Library/h2matrix.h Library/block.h \
  Library/hmatrix.h Library/sparsematrix.h Library/sparsepattern.h \
- Library/kernelmatrix.h
+ Library/kernelmatrix.h Library/h2arith.h Library/h2compression.h \
+ Library/h2update.h

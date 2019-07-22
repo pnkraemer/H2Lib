@@ -37,7 +37,6 @@ main(int argc, char **argv)
     pamatrix bmat;
     pamatrix precon;
 
-    bool use_h2;
     uint dim, points, m, cpos;
     uint i, j;
     uint leafsize;
@@ -84,10 +83,8 @@ main(int argc, char **argv)
     fill_clusterbasis_kernelmatrix(km, cb);
 
     /* Define blockkernelmatrix object */
-    use_h2 = true;
-    bkm_h2 = build_from_kernelmatrix_blockkernelmatrix(km, use_h2, broot, cb);
-    use_h2 = false;
-    bkm_a = build_from_kernelmatrix_blockkernelmatrix(km, use_h2, 0, 0);
+    bkm_h2 = build_from_kernelmatrix_h2_blockkernelmatrix(km, broot, cb);
+    bkm_a = build_from_kernelmatrix_full_blockkernelmatrix(km);
     bmat = new_zero_amatrix(bkm_a->dof, bkm_a->dof);
     convert_blockkernelmatrix_amatrix(bkm_a, bmat);
 

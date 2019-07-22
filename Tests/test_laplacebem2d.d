@@ -8,8 +8,8 @@ Tests/test_laplacebem2d.o: Tests/test_laplacebem2d.c Library/basic.h \
  Library/uniform.h Library/clusterbasis.h Library/clusteroperator.h \
  Library/dh2matrix.h Library/dblock.h Library/dcluster.h \
  Library/duniform.h Library/dclusterbasis.h Library/dclusteroperator.h \
- Library/blockkernelmatrix.h Library/kernelmatrix.h \
- Library/laplacebem2d.h Library/parameters.h Library/bem2d.h \
- Library/gaussquad.h Library/hcoarsen.h Library/harith.h \
- Library/h2update.h Library/h2compression.h Library/aca.h \
- Library/curve2d.h Library/singquad1d.h Library/matrixnorms.h
+ Library/blockkernelmatrix.h Library/kernelmatrix.h Library/h2arith.h \
+ Library/h2compression.h Library/h2update.h Library/laplacebem2d.h \
+ Library/parameters.h Library/bem2d.h Library/gaussquad.h \
+ Library/hcoarsen.h Library/harith.h Library/aca.h Library/curve2d.h \
+ Library/singquad1d.h Library/matrixnorms.h

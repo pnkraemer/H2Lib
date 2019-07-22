@@ -122,7 +122,7 @@ update_bbox_cluster(pcluster t)
 {
   uint      i, j;
 
-  assert(t->son > 0);
+  assert(t->son != NULL);
 
   for (j = 0; j < t->dim; j++) {
     t->bmin[j] = t->son[0]->bmin[j];

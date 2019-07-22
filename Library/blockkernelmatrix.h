@@ -10,16 +10,17 @@ typedef const blockkernelmatrix *pcblockkernelmatrix;
 #include "kernelmatrix.h"
 #include "clusterbasis.h"
 #include "avector.h"
+#include "h2arith.h"
 
 struct _blockkernelmatrix {
-    pamatrix kmat;    /* in compliance with kernelmatrix.h: only symmetric matrices */
+    pamatrix kmat;      /* in compliance with kernelmatrix.h: only symmetric matrices */
     ph2matrix h2kmat;
-    pamatrix pb;    /* see above, hence only one block */
-    uint dof;       /* use "dof" because rows belongs to kmat */
+    pamatrix pb;        /* see above, hence only one block */
+    uint dof;           /* use "dof" because rows belongs to kmat */
     /*
      * TODO:
      * Should a blockkernelmatrix object have a reference
-     * to the kernelmatrix object it stems from?
+     * to the kernelmatrix object it stems from? (probably not)
      */
 };
 
@@ -34,7 +35,26 @@ HEADER_PREFIX void
 del_blockkernelmatrix(pblockkernelmatrix h2);
 
 HEADER_PREFIX pblockkernelmatrix
-build_from_kernelmatrix_blockkernelmatrix(pkernelmatrix km, bool use_h2, pblock broot, pclusterbasis cb);
+build_from_kernelmatrix_full_blockkernelmatrix(pkernelmatrix km);
+
+HEADER_PREFIX pblockkernelmatrix
+build_from_kernelmatrix_h2_blockkernelmatrix(pkernelmatrix km, pblock broot, pclusterbasis cb);
+
+/* ------------------------------------------------------------
+ * Statistics
+ * ------------------------------------------------------------ */
+
+HEADER_PREFIX size_t
+getsize_blockkernelmatrix(pcblockkernelmatrix bkm);
+
+
+/* ------------------------------------------------------------
+ * Compression
+ * ------------------------------------------------------------ */
+
+HEADER_PREFIX pblockkernelmatrix
+compress_blockkernelmatrix(pcblockkernelmatrix bkm, real accuracy);
+
 
 /* ------------------------------------------------------------
  * Matrix-vector multiplication

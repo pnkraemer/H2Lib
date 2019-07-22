@@ -7,6 +7,7 @@ Tests/test_blockkernelmatrix.o: Tests/test_blockkernelmatrix.c \
  Library/rkmatrix.h Library/sparsematrix.h Library/sparsepattern.h \
  Library/uniform.h Library/clusterbasis.h Library/clusteroperator.h \
  Library/kernelfcts.h Library/blockkernelmatrix.h Library/kernelmatrix.h \
+ Library/h2arith.h Library/h2compression.h Library/h2update.h \
  Library/krylovsolvers.h Library/dh2matrix.h Library/dblock.h \
  Library/dcluster.h Library/duniform.h Library/dclusterbasis.h \
  Library/dclusteroperator.h Library/blockkernelmatrix.h

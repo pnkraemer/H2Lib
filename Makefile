@@ -30,7 +30,6 @@ H2LIB_CORE2 = \
 	Library/h2matrix.c \
 	Library/rkmatrix.c \
 	Library/hmatrix.c \
-	Library/addon_krylovsolvers.c \
 	Library/krylovsolvers.c
 
 H2LIB_CORE3 = \
@@ -83,7 +82,6 @@ H2LIB_KERN = \
 	Library/kernelfcts.c \
 	Library/kernelmatrix.c \
 	Library/blockkernelmatrix.c \
-	Library/addon_kernelmatrix.c
 
 SOURCES_libh2 := \
 	$(H2LIB_CORE0) \
@@ -149,8 +147,8 @@ PROGRAMS_tests := \
 
 SOURCES_examples = \
     lshape/make_lmesh.c \
-    lshape/lshape_gmres.c \
     lshape/clean_lshape_gmres.c \
+#    lshape/lshape_gmres.c 
 
 
 OBJECTS_examples = \

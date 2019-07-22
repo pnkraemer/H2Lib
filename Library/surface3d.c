@@ -1141,7 +1141,7 @@ read_gmsh_surface3d(const char *filename)
     readline(buf, 255, file, &line);
   }
   readline(buf, 255, file, &line);
-  sscanf(buf, "%d", &vertices);
+  sscanf(buf, "%u", &vertices);
 
   i = 0;
   while (strcmp(buf, "$EndNodes\n")) {
@@ -1159,11 +1159,11 @@ read_gmsh_surface3d(const char *filename)
     readline(buf, 255, file, &line);
   }
   readline(buf, 255, file, &line);
-  sscanf(buf, "%d", &triangles);
+  sscanf(buf, "%u", &triangles);
 
   i = 0;
   while (strcmp(buf, "$EndElements\n")) {
-    c = sscanf(buf, "%d 2 2 %d %d %d %d %d", &tmp, &tmp2, &tmp3, &tmp4, &tmp5,
+    c = sscanf(buf, "%u 2 2 %u %u %u %u %u", &tmp, &tmp2, &tmp3, &tmp4, &tmp5,
 	       &tmp6);
     if (c != 6) {
       triangles--;
@@ -1199,7 +1199,7 @@ read_gmsh_surface3d(const char *filename)
   i = 0;
   while (strcmp(buf, "$EndNodes\n")) {
     readline(buf, 255, file, &line);
-    sscanf(buf, "%d %" SCANF_PREFIX "f %" SCANF_PREFIX "f %" SCANF_PREFIX "f",
+    sscanf(buf, "%u %" SCANF_PREFIX "f %" SCANF_PREFIX "f %" SCANF_PREFIX "f",
 	   &tmp, gr->x[i] + 0, gr->x[i] + 1, gr->x[i] + 2);
     i++;
   }
@@ -1217,7 +1217,7 @@ read_gmsh_surface3d(const char *filename)
   i = 0;
   while (strcmp(buf, "$EndElements\n") && i <= triangles) {
     readline(buf, 255, file, &line);
-    c = sscanf(buf, "%d 2 2 %d %d %d %d %d", &tmp, &tmp2, &tmp3, gr->t[i] + 0,
+    c = sscanf(buf, "%u 2 2 %u %u %u %u %u", &tmp, &tmp2, &tmp3, gr->t[i] + 0,
 	       gr->t[i] + 1, gr->t[i] + 2);
     if (c == 6) {
       gr->t[i][0]--;
@@ -1404,7 +1404,7 @@ read_unv_surface3d(char *filename)
   readline(buf, 255, file, &line);
   while (strncmp(buf, "    -1", 6)) {
     assert(sscanf
-	   (buf, "    %d         %d         %d         %d", x + i, &tmp1,
+	   (buf, "    %u         %u         %u         %u", x + i, &tmp1,
 	    &tmp2, &tmp3)
 	   == 4);
     readline(buf, 255, file, &line);
@@ -1428,11 +1428,11 @@ read_unv_surface3d(char *filename)
   readline(buf, 255, file, &line);
   while (strncmp(buf, "    -1", 6)) {
     assert(sscanf(buf,
-		  "    %d        %d         %d         %d         %d         %d",
+		  "    %u        %u         %u         %u         %u         %u",
 		  t + i, &tmp1, &tmp2, &tmp3, &tmp4, &tmp5)
 	   == 6);
     readline(buf, 255, file, &line);
-    assert(sscanf(buf, "    %d    %d    %d", gr->t[i] + 0, gr->t[i] + 1,
+    assert(sscanf(buf, "    %u    %u    %u", gr->t[i] + 0, gr->t[i] + 1,
 		  gr->t[i] + 2)
 	   == 3);
     readline(buf, 255, file, &line);

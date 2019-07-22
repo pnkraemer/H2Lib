@@ -9,6 +9,6 @@ Library/laplacebem3d.o: Library/laplacebem3d.c Library/basic.h \
  Library/uniform.h Library/h2matrix.h Library/dcluster.h Library/dblock.h \
  Library/dclusterbasis.h Library/dclusteroperator.h Library/dh2matrix.h \
  Library/duniform.h Library/krylovsolvers.h Library/blockkernelmatrix.h \
- Library/kernelmatrix.h Library/hcoarsen.h Library/harith.h \
- Library/h2update.h Library/h2compression.h Library/aca.h \
+ Library/kernelmatrix.h Library/h2arith.h Library/h2compression.h \
+ Library/h2update.h Library/hcoarsen.h Library/harith.h Library/aca.h \
  Library/macrosurface3d.h Library/surface3d.h Library/singquad2d.h

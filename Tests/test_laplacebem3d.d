@@ -8,9 +8,9 @@ Tests/test_laplacebem3d.o: Tests/test_laplacebem3d.c Library/basic.h \
  Library/uniform.h Library/clusterbasis.h Library/clusteroperator.h \
  Library/dh2matrix.h Library/dblock.h Library/dcluster.h \
  Library/duniform.h Library/dclusterbasis.h Library/dclusteroperator.h \
- Library/blockkernelmatrix.h Library/kernelmatrix.h \
- Library/laplacebem3d.h Library/parameters.h Library/bem3d.h \
- Library/gaussquad.h Library/krylovsolvers.h Library/hcoarsen.h \
- Library/harith.h Library/h2update.h Library/h2compression.h \
+ Library/blockkernelmatrix.h Library/kernelmatrix.h Library/h2arith.h \
+ Library/h2compression.h Library/h2update.h Library/laplacebem3d.h \
+ Library/parameters.h Library/bem3d.h Library/gaussquad.h \
+ Library/krylovsolvers.h Library/hcoarsen.h Library/harith.h \
  Library/aca.h Library/macrosurface3d.h Library/surface3d.h \
  Library/singquad2d.h Library/matrixnorms.h

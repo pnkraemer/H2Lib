@@ -9,8 +9,6 @@
 #include "kernelmatrix.h"
 
 #include "kernelfcts.h"
-#include "addon_kernelmatrix.h"
-#include "addon_krylovsolvers.h"
 
 #include "../lshape/auxiliary.h"
 
@@ -52,11 +50,11 @@ main(int argc, char **argv)
     (void) printf("\nCreating L-shaped mesh,\n\t%u refinement(s)\n       ", numref);
 
     gr_2d = (ptri2d *) allocmem((size_t) sizeof(ptri2d) * (numref + 1));
-    gr_2d[0] = new_lshape_tri2d();  
-//    gr_2d[0] = new_unitsquare_tri2d();  
+    gr_2d[0] = new_lshape_tri2d();
+//    gr_2d[0] = new_unitsquare_tri2d();
     for (i = 0; i < numref; i++)
         gr_2d[i + 1] = refine_tri2d(gr_2d[i], NULL);
-    check_tri2d(gr_2d[numref]);     
+    check_tri2d(gr_2d[numref]);
     numpts =  gr_2d[numref]->vertices;
     (void) printf("\t%u vertices\n", numpts);
 
@@ -75,13 +73,13 @@ main(int argc, char **argv)
     (void) printf("Saving mesh in file\n");
     sprintf(filename, "mesh_N%d.txt", numpts);
     strcat(filepath, filename);
-    fptr = fopen(filepath, "w"); 
-    if (fptr == NULL) 
-        printf("\n\nCOULD NOT OPEN FILE!\n\n"); 
+    fptr = fopen(filepath, "w");
+    if (fptr == NULL)
+        printf("\n\nCOULD NOT OPEN FILE!\n\n");
 
-    for (i=0; i<numpts; i++) 
-        fprintf(fptr,"%lf %lf\n", gr_2d[numref]->x[i][0], gr_2d[numref]->x[i][1]); 
-    fclose(fptr); 
+    for (i=0; i<numpts; i++)
+        fprintf(fptr,"%lf %lf\n", gr_2d[numref]->x[i][0], gr_2d[numref]->x[i][1]);
+    fclose(fptr);
 
 
 
@@ -97,10 +95,3 @@ main(int argc, char **argv)
     uninit_h2lib();
     return 0;
 }
-
-
-
-
-
-
-

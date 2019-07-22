@@ -544,13 +544,14 @@ fill_h2matrix_kernelmatrix(pckernelmatrix km, ph2matrix G)
     rsons = G->rsons;
     csons = G->csons;
 
-    for(j=0; j<csons; j++)
-      for(i=0; i<rsons; i++)
-  fill_h2matrix_kernelmatrix(km, G->son[i+j*rsons]);
-  }
-  else if(G->u)
+    for(j=0; j<csons; j++){
+      for(i=0; i<rsons; i++){
+        fill_h2matrix_kernelmatrix(km, G->son[i+j*rsons]);
+      }
+    }
+  } else if(G->u){
     fillS_kernelmatrix(G->rb->t, G->cb->t, km, &G->u->S);
-  else {
+  } else {
     assert(G->f);
     fillN_kernelmatrix(G->rb->t->idx, G->cb->t->idx, km, G->f);
   }

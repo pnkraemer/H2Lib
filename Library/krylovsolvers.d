@@ -8,4 +8,5 @@ Library/krylovsolvers.o: Library/krylovsolvers.c Library/krylovsolvers.h \
  Library/clusterbasis.h Library/clusteroperator.h Library/dh2matrix.h \
  Library/dblock.h Library/dcluster.h Library/duniform.h \
  Library/dclusterbasis.h Library/dclusteroperator.h \
- Library/blockkernelmatrix.h Library/kernelmatrix.h
+ Library/blockkernelmatrix.h Library/kernelmatrix.h Library/h2arith.h \
+ Library/h2compression.h Library/h2update.h

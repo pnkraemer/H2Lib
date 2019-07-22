@@ -1010,3 +1010,4 @@ stop_scheduler()
 }
 
 #endif
+extern int make_iso_compilers_happy;

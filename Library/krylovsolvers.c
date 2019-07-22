@@ -4,7 +4,7 @@
  * ------------------------------------------------------------ */
 
 /** @file krylovsolvers.c
- *  @author Steffen B&ouml;rm */
+ *	@author Steffen B&ouml;rm */
 
 #include "krylovsolvers.h"
 #include "basic.h"
@@ -18,77 +18,77 @@ uint
 solve_cg_avector(void *A, addeval_t addeval_A, pcavector b, pavector x,
 		 real eps, uint maxiter)
 {
-  pavector  r, p, a;
-  real      norm, error;
-  uint      n, iter;
+	pavector	r, p, a;
+	real			norm, error;
+	uint			n, iter;
 
-  n = x->dim;
+	n = x->dim;
 
-  assert(b->dim == n);
+	assert(b->dim == n);
 
-  r = new_avector(n);
-  p = new_avector(n);
-  a = new_avector(n);
+	r = new_avector(n);
+	p = new_avector(n);
+	a = new_avector(n);
 
-  norm = norm2_avector(b);
+	norm = norm2_avector(b);
 
-  init_cg(addeval_A, A, b, x, r, p, a);
-  error = norm2_avector(r);
+	init_cg(addeval_A, A, b, x, r, p, a);
+	error = norm2_avector(r);
 
-  iter = 0;
-  while (error > eps * norm && iter + 1 != maxiter) {
-    step_cg(addeval_A, A, b, x, r, p, a);
-    error = norm2_avector(r);
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
+		step_cg(addeval_A, A, b, x, r, p, a);
+		error = norm2_avector(r);
 
-    iter++;
-  }
+		iter++;
+	}
 
-  del_avector(a);
-  del_avector(p);
-  del_avector(r);
+	del_avector(a);
+	del_avector(p);
+	del_avector(r);
 
-  return iter;
+	return iter;
 }
 
 uint
 solve_cg_amatrix_avector(pcamatrix A, pcavector b, pavector x, real eps,
 			 uint maxiter)
 {
-  return solve_cg_avector((void *) A, (addeval_t) addeval_amatrix_avector, b,
-			  x, eps, maxiter);
+	return solve_cg_avector((void *) A, (addeval_t) addeval_amatrix_avector, b,
+				x, eps, maxiter);
 }
 
 uint
 solve_cg_sparsematrix_avector(pcsparsematrix A, pcavector b, pavector x,
-			      real eps, uint maxiter)
+						real eps, uint maxiter)
 {
-  return solve_cg_avector((void *) A,
-			  (addeval_t) addeval_sparsematrix_avector, b, x, eps,
-			  maxiter);
+	return solve_cg_avector((void *) A,
+				(addeval_t) addeval_sparsematrix_avector, b, x, eps,
+				maxiter);
 }
 
 uint
 solve_cg_hmatrix_avector(pchmatrix A, pcavector b, pavector x, real eps,
 			 uint maxiter)
 {
-  return solve_cg_avector((void *) A, (addeval_t) addeval_hmatrix_avector, b,
-			  x, eps, maxiter);
+	return solve_cg_avector((void *) A, (addeval_t) addeval_hmatrix_avector, b,
+				x, eps, maxiter);
 }
 
 uint
 solve_cg_h2matrix_avector(pch2matrix A, pcavector b, pavector x, real eps,
-			  uint maxiter)
+				uint maxiter)
 {
-  return solve_cg_avector((void *) A, (addeval_t) addeval_h2matrix_avector, b,
-			  x, eps, maxiter);
+	return solve_cg_avector((void *) A, (addeval_t) addeval_h2matrix_avector, b,
+				x, eps, maxiter);
 }
 
 uint
 solve_cg_dh2matrix_avector(pcdh2matrix A, pcavector b, pavector x,
-			   real eps, uint maxiter)
+				 real eps, uint maxiter)
 {
-  return solve_cg_avector((void *) A, (addeval_t) addeval_dh2matrix_avector,
-			  b, x, eps, maxiter);
+	return solve_cg_avector((void *) A, (addeval_t) addeval_dh2matrix_avector,
+				b, x, eps, maxiter);
 }
 
 /* ------------------------------------------------------------
@@ -97,82 +97,82 @@ solve_cg_dh2matrix_avector(pcdh2matrix A, pcavector b, pavector x,
 
 uint
 solve_pcg_avector(void *A, addeval_t addeval_A, prcd_t prcd, void *pdata,
-		  pcavector b, pavector x, real eps, uint maxiter)
+			pcavector b, pavector x, real eps, uint maxiter)
 {
-  pavector  r, q, p, a;
-  real      norm, error;
-  uint      n, iter;
+	pavector	r, q, p, a;
+	real			norm, error;
+	uint			n, iter;
 
-  n = x->dim;
+	n = x->dim;
 
-  assert(b->dim == n);
+	assert(b->dim == n);
 
-  r = new_avector(n);
-  q = new_avector(n);
-  p = new_avector(n);
-  a = new_avector(n);
+	r = new_avector(n);
+	q = new_avector(n);
+	p = new_avector(n);
+	a = new_avector(n);
 
-  norm = norm2_avector(b);
+	norm = norm2_avector(b);
 
-  init_pcg(addeval_A, A, prcd, pdata, b, x, r, q, p, a);
-  error = norm2_avector(r);
+	init_pcg(addeval_A, A, prcd, pdata, b, x, r, q, p, a);
+	error = norm2_avector(r);
 
-  iter = 0;
-  while (error > eps * norm && iter + 1 != maxiter) {
-    step_pcg(addeval_A, A, prcd, pdata, b, x, r, q, p, a);
-    error = norm2_avector(r);
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
+		step_pcg(addeval_A, A, prcd, pdata, b, x, r, q, p, a);
+		error = norm2_avector(r);
 
-    iter++;
-  }
+		iter++;
+	}
 
-  del_avector(a);
-  del_avector(p);
-  del_avector(q);
-  del_avector(r);
+	del_avector(a);
+	del_avector(p);
+	del_avector(q);
+	del_avector(r);
 
-  return iter;
+	return iter;
 }
 
 uint
 solve_pcg_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata,
-			  pcavector b, pavector x, real eps, uint maxiter)
+				pcavector b, pavector x, real eps, uint maxiter)
 {
-  return solve_pcg_avector((void *) A, (addeval_t) addeval_amatrix_avector,
-			   prcd, pdata, b, x, eps, maxiter);
+	return solve_pcg_avector((void *) A, (addeval_t) addeval_amatrix_avector,
+				 prcd, pdata, b, x, eps, maxiter);
 }
 
 uint
 solve_pcg_sparsematrix_avector(pcsparsematrix A, prcd_t prcd, void *pdata,
-			       pcavector b, pavector x, real eps,
-			       uint maxiter)
+						 pcavector b, pavector x, real eps,
+						 uint maxiter)
 {
-  return solve_pcg_avector((void *) A,
-			   (addeval_t) addeval_sparsematrix_avector, prcd,
-			   pdata, b, x, eps, maxiter);
+	return solve_pcg_avector((void *) A,
+				 (addeval_t) addeval_sparsematrix_avector, prcd,
+				 pdata, b, x, eps, maxiter);
 }
 
 uint
 solve_pcg_hmatrix_avector(pchmatrix A, prcd_t prcd, void *pdata,
-			  pcavector b, pavector x, real eps, uint maxiter)
+				pcavector b, pavector x, real eps, uint maxiter)
 {
-  return solve_pcg_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
-			   prcd, pdata, b, x, eps, maxiter);
+	return solve_pcg_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
+				 prcd, pdata, b, x, eps, maxiter);
 }
 
 uint
 solve_pcg_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
-			   pcavector b, pavector x, real eps, uint maxiter)
+				 pcavector b, pavector x, real eps, uint maxiter)
 {
-  return solve_pcg_avector((void *) A, (addeval_t) addeval_h2matrix_avector,
-			   prcd, pdata, b, x, eps, maxiter);
+	return solve_pcg_avector((void *) A, (addeval_t) addeval_h2matrix_avector,
+				 prcd, pdata, b, x, eps, maxiter);
 }
 
 uint
 solve_pcg_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
-			    pcavector b, pavector x, real eps, uint maxiter)
+					pcavector b, pavector x, real eps, uint maxiter)
 {
-  return solve_pcg_avector((void *) A, (addeval_t) addeval_dh2matrix_avector,
-			   prcd, pdata, b, x, eps, maxiter);
+	return solve_pcg_avector((void *) A, (addeval_t) addeval_dh2matrix_avector,
+				 prcd, pdata, b, x, eps, maxiter);
 }
 
 /* ------------------------------------------------------------
@@ -181,117 +181,108 @@ solve_pcg_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
 
 uint
 solve_gmres_avector(void *A, addeval_t addeval_A, pcavector b, pavector x,
-		    real eps, uint maxiter, uint kmax)
+				real eps, uint maxiter, uint kmax)
 {
-  pavector  rhat, r, q, tau;
-  pamatrix  qr;
-  real      norm, error;
-  uint      n, iter, k;
+	pavector	rhat, r, q, tau;
+	pamatrix	qr;
+	real			norm, error;
+	uint			n, iter, k;
 
-  n = x->dim;
+	n = x->dim;
 
-  assert(b->dim == n);
+	assert(b->dim == n);
 
-  rhat = new_avector(n);
-  r = new_avector(n);
-  q = new_avector(n);
-  qr = new_amatrix(n, kmax);
-  tau = new_avector(kmax);
+	rhat = new_avector(n);
+	r = new_avector(n);
+	q = new_avector(n);
+	qr = new_amatrix(n, kmax);
+	tau = new_avector(kmax);
 
-  norm = norm2_avector(b);
+	norm = norm2_avector(b);
 
-  init_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
-  // printf("\ninitialised\n");
-  // print_avector(x);
-  error = residualnorm_gmres(rhat, k);
+	init_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
+	error = residualnorm_gmres(rhat, k);
 
-  iter = 0;
-  while (error > eps * norm && iter + 1 != maxiter) {
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
 
-    if (k + 1 >= kmax) {
-      finish_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
-  // printf("\nfinished\n");
-  // print_avector(x);
+		if (k + 1 >= kmax) {
+			finish_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
+		}
 
-    }
+		step_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
+		error = residualnorm_gmres(rhat, k);
 
-    step_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
-    error = residualnorm_gmres(rhat, k);
-  // printf("\nstepped\n");
-  // print_avector(x);
+		iter++;
+	}
+	finish_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
 
-    iter++;
-  }
-  finish_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
-  // printf("\nfinished\n");
-  // print_avector(x);
+	del_avector(tau);
+	del_amatrix(qr);
+	del_avector(q);
+	del_avector(r);
+	del_avector(rhat);
 
-  del_avector(tau);
-  del_amatrix(qr);
-  del_avector(q);
-  del_avector(r);
-  del_avector(rhat);
-
-  return iter;
+	return iter;
 }
 
 uint
 solve_gmres_amatrix_avector(pcamatrix A, pcavector b, pavector x, real eps,
-			    uint maxiter, uint kmax)
+					uint maxiter, uint kmax)
 {
 	if(kmax > A->rows){
 		kmax = A->rows;
-		// printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
+		printf("\nkmax > A->dof. Using kmax = A->dof instead...\n");
 	}
-  return solve_gmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
-			     b, x, eps, maxiter, kmax);
+	return solve_gmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
+					 b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_gmres_sparsematrix_avector(pcsparsematrix A, pcavector b, pavector x,
 				 real eps, uint maxiter, uint kmax)
 {
-  return solve_gmres_avector((void *) A,
-			     (addeval_t) addeval_sparsematrix_avector, b, x,
-			     eps, maxiter, kmax);
+	return solve_gmres_avector((void *) A,
+					 (addeval_t) addeval_sparsematrix_avector, b, x,
+					 eps, maxiter, kmax);
 }
 
 uint
 solve_gmres_hmatrix_avector(pchmatrix A, pcavector b, pavector x, real eps,
-			    uint maxiter, uint kmax)
+					uint maxiter, uint kmax)
 {
-  return solve_gmres_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
-			     b, x, eps, maxiter, kmax);
+	return solve_gmres_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
+					 b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_gmres_h2matrix_avector(pch2matrix A, pcavector b, pavector x,
-			     real eps, uint maxiter, uint kmax)
+					 real eps, uint maxiter, uint kmax)
 {
-  return solve_gmres_avector((void *) A, (addeval_t) addeval_h2matrix_avector,
-			     b, x, eps, maxiter, kmax);
+	return solve_gmres_avector((void *) A, (addeval_t) addeval_h2matrix_avector,
+					 b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_gmres_dh2matrix_avector(pcdh2matrix A, pcavector b, pavector x,
-			      real eps, uint maxiter, uint kmax)
+						real eps, uint maxiter, uint kmax)
 {
-  return solve_gmres_avector((void *) A,
-			     (addeval_t) addeval_dh2matrix_avector, b, x, eps,
-			     maxiter, kmax);
+	return solve_gmres_avector((void *) A,
+					 (addeval_t) addeval_dh2matrix_avector, b, x, eps,
+					 maxiter, kmax);
 }
 
 uint
 solve_gmres_blockkernelmatrix_avector(pcblockkernelmatrix A, pcavector b, pavector x, real eps,
-    uint maxiter, uint kmax)
+		uint maxiter, uint kmax)
 {
 	if(kmax > A->dof){
 		kmax = A->dof;
-		// printf("\nkmax > A->dof. Using kmax = A->dof instead...\n");
+		printf("\nkmax > A->dof. Using kmax = A->dof instead...\n");
 	}
-  return solve_gmres_avector((void *) A,
-			     (addeval_t) addeval_blockkernelmatrix_avector, b, x, eps,
-			     maxiter, kmax);
+	return solve_gmres_avector((void *) A,
+					 (addeval_t) addeval_blockkernelmatrix_avector, b, x, eps,
+					 maxiter, kmax);
 }
 
 /* ------------------------------------------------------------
@@ -300,65 +291,51 @@ solve_gmres_blockkernelmatrix_avector(pcblockkernelmatrix A, pcavector b, pavect
 
 uint
 solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
-		     void *pdata, pcavector b, pavector x, real eps,
-		     uint maxiter, uint kmax)
+				 void *pdata, pcavector b, pavector x, real eps,
+				 uint maxiter, uint kmax)
 {
-  pavector  rhat, r, q, tau;
-  pamatrix  qr;
-  real      norm, error;
-  uint      n, iter, k;
+	pavector	rhat, r, q, tau;
+	pamatrix	qr;
+	real			norm, error;
+	uint			n, iter, k;
 
-  n = x->dim;
+	n = x->dim;
 
-  assert(b->dim == n);
+	assert(b->dim == n);
 
-  rhat = new_avector(n);
-  r = new_avector(n);
-  q = new_avector(n);
-  qr = new_amatrix(n, kmax);
-  tau = new_avector(kmax);
+	rhat = new_avector(n);
+	r = new_avector(n);
+	q = new_avector(n);
+	qr = new_amatrix(n, kmax);
+	tau = new_avector(kmax);
 
-  copy_avector(b, r);
-//  prcd(pdata, r);			/* Counterproductive for right preconditioning???*/
-  norm = norm2_avector(r);
+	copy_avector(b, r);
+//	prcd(pdata, r);			/* Counterproductive for right preconditioning???*/
+	norm = norm2_avector(r);
 
-  init_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-  error = residualnorm_pgmres(rhat, k);
-  // printf("\ninitialised\n");
-  // print_avector(x);
+	init_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+	error = residualnorm_pgmres(rhat, k);
 
-  iter = 0;
-  while (error > eps * norm && iter + 1 != maxiter) {
-    if (k + 1 >= kmax) {
-      finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-  	// printf("\nfinished\n");
-  	// print_avector(x);
-
-    }
-    step_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-	// printf("\nstepped\n");
-	// print_avector(x);
-
-    error = residualnorm_pgmres(rhat, k);
-    printf("  Step %u: dimension %u, preconditioned residual %.2e\n",
-	   iter, k, ABS(rhat->v[k]));
-
-    iter++;
-  }
-
-  if (k > 0){
-    finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-  // printf("\nfinished\n");
-  // print_avector(x);
-
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
+		if (k + 1 >= kmax) {
+			finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		}
+		step_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		error = residualnorm_pgmres(rhat, k);
+		iter++;
 	}
-  del_avector(tau);
-  del_amatrix(qr);
-  del_avector(q);
-  del_avector(r);
-  del_avector(rhat);
 
-  return iter;
+		if (k > 0){
+			finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		}
+	del_avector(tau);
+	del_amatrix(qr);
+	del_avector(q);
+	del_avector(r);
+	del_avector(rhat);
+
+	return iter;
 }
 
 
@@ -367,139 +344,137 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
 
 uint
 solve_lpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
-		     void *pdata, pcavector b, pavector x, real eps,
-		     uint maxiter, uint kmax)
+				 void *pdata, pcavector b, pavector x, real eps,
+				 uint maxiter, uint kmax)
 {
-  pavector  rhat, r, q, tau;
-  pamatrix  qr;
-  real      norm, error;
-  uint      n, iter, k;
+	pavector	rhat, r, q, tau;
+	pamatrix	qr;
+	real			norm, error;
+	uint			n, iter, k;
 
-  n = x->dim;
+	n = x->dim;
 
-  assert(b->dim == n);
+	assert(b->dim == n);
 
-  rhat = new_avector(n);
-  r = new_avector(n);
-  q = new_avector(n);
-  qr = new_amatrix(n, kmax);
-  tau = new_avector(kmax);
+	rhat = new_avector(n);
+	r = new_avector(n);
+	q = new_avector(n);
+	qr = new_amatrix(n, kmax);
+	tau = new_avector(kmax);
 
-  copy_avector(b, r);
-  prcd(pdata, r);
-  norm = norm2_avector(r);
+	copy_avector(b, r);
+	prcd(pdata, r);
+	norm = norm2_avector(r);
 
-  init_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-  error = residualnorm_pgmres(rhat, k);
+	init_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+	error = residualnorm_pgmres(rhat, k);
 
-  iter = 0;
-  while (error > eps * norm && iter + 1 != maxiter) {
-    if (k + 1 >= kmax) {
-      finish_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-    }
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
+		if (k + 1 >= kmax) {
+			finish_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		}
+		step_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		error = residualnorm_pgmres(rhat, k);
+		iter++;
+	}
 
-    step_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-    error = residualnorm_pgmres(rhat, k);
+	if (k > 0)
+		finish_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
 
-    iter++;
-  }
+	del_avector(tau);
+	del_amatrix(qr);
+	del_avector(q);
+	del_avector(r);
+	del_avector(rhat);
 
-  if (k > 0)
-    finish_lpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
-
-  del_avector(tau);
-  del_amatrix(qr);
-  del_avector(q);
-  del_avector(r);
-  del_avector(rhat);
-
-  return iter;
+	return iter;
 }
 
 
 uint
 solve_lpgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata,
-			     pcavector b, pavector x, real eps, uint maxiter,
-			     uint kmax)
+					 pcavector b, pavector x, real eps, uint maxiter,
+					 uint kmax)
 {
 	if(kmax > A->rows){
 		kmax = A->rows;
-		// printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
+		printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
 	}
-  return solve_lpgmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
-			      prcd, pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
+						prcd, pdata, b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_lpgmres_sparsematrix_avector(pcsparsematrix A, prcd_t prcd,
-				  void *pdata, pcavector b, pavector x,
-				  real eps, uint maxiter, uint kmax)
+					void *pdata, pcavector b, pavector x,
+					real eps, uint maxiter, uint kmax)
 {
-  return solve_lpgmres_avector((void *) A,
-			      (addeval_t) addeval_sparsematrix_avector, prcd,
-			      pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A,
+						(addeval_t) addeval_sparsematrix_avector, prcd,
+						pdata, b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_lpgmres_hmatrix_avector(pchmatrix A, prcd_t prcd, void *pdata,
-			     pcavector b, pavector x, real eps, uint maxiter,
-			     uint kmax)
+					 pcavector b, pavector x, real eps, uint maxiter,
+					 uint kmax)
 {
-  return solve_lpgmres_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
-			      prcd, pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A, (addeval_t) addeval_hmatrix_avector,
+						prcd, pdata, b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_lpgmres_h2matrix_avector(pch2matrix A, prcd_t prcd, void *pdata,
-			      pcavector b, pavector x, real eps, uint maxiter,
-			      uint kmax)
+						pcavector b, pavector x, real eps, uint maxiter,
+						uint kmax)
 {
-  return solve_lpgmres_avector((void *) A,
-			      (addeval_t) addeval_h2matrix_avector, prcd,
-			      pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A,
+						(addeval_t) addeval_h2matrix_avector, prcd,
+						pdata, b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_lpgmres_dh2matrix_avector(pcdh2matrix A, prcd_t prcd, void *pdata,
-			       pcavector b, pavector x, real eps,
-			       uint maxiter, uint kmax)
+						 pcavector b, pavector x, real eps,
+						 uint maxiter, uint kmax)
 {
-  return solve_lpgmres_avector((void *) A,
-			      (addeval_t) addeval_dh2matrix_avector, prcd,
-			      pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A,
+						(addeval_t) addeval_dh2matrix_avector, prcd,
+						pdata, b, x, eps, maxiter, kmax);
 }
 
 uint
 solve_lpgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
-			       pcavector b, pavector x, real eps,
-			       uint maxiter, uint kmax)
+						 pcavector b, pavector x, real eps,
+						 uint maxiter, uint kmax)
 {
-  return solve_lpgmres_avector((void *) A,
-			      (addeval_t) addeval_blockkernelmatrix_avector, prcd,
-			      pdata, b, x, eps, maxiter, kmax);
+	return solve_lpgmres_avector((void *) A,
+						(addeval_t) addeval_blockkernelmatrix_avector, prcd,
+						pdata, b, x, eps, maxiter, kmax);
 }
 
 
 uint
 solve_rpgmres_amatrix_avector(pcamatrix A, prcd_t prcd, void *pdata,
-			     pcavector b, pavector x, real eps, uint maxiter,
-			     uint kmax)
+					 pcavector b, pavector x, real eps, uint maxiter,
+					 uint kmax)
 {
 	if(kmax > A->rows){
 		kmax = A->rows;
-		// printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
+		printf("\nkmax > A->rows. Using kmax = A->rows instead...\n");
 	}
-  return solve_rpgmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
-			      prcd, pdata, b, x, eps, maxiter, kmax);
+	return solve_rpgmres_avector((void *) A, (addeval_t) addeval_amatrix_avector,
+						prcd, pdata, b, x, eps, maxiter, kmax);
 }
 
 
 uint
 solve_rpgmres_blockkernelmatrix_avector(pcblockkernelmatrix A, prcd_t prcd, void *pdata,
-			       pcavector b, pavector x, real eps,
-			       uint maxiter, uint kmax)
+						 pcavector b, pavector x, real eps,
+						 uint maxiter, uint kmax)
 {
-  return solve_rpgmres_avector((void *) A,
-			      (addeval_t) addeval_blockkernelmatrix_avector, prcd,
-			      pdata, b, x, eps, maxiter, kmax);
+	return solve_rpgmres_avector((void *) A,
+						(addeval_t) addeval_blockkernelmatrix_avector, prcd,
+						pdata, b, x, eps, maxiter, kmax);
 }

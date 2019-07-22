@@ -2145,10 +2145,10 @@ dweights(pdclusterbasis cb, uint tname, uint pardepth, void *data)
 
 	      /* Factor for Truncation, if necessary */
 	      if (tm && tm->blocks) {
-		if (tm->frobenius) {	// case Frobenius norm 
+		if (tm->frobenius) {	// case Frobenius norm
 		  norm = normfrob_fast_duniform(G->u, oro, oco);
 		}
-		else {		// case Euclidean norm 
+		else {		// case Euclidean norm
 		  norm = norm2_fast_duniform(G->u, oro, oco);
 		}
 		alpha = (norm > 0.0 ? 1.0 / norm : 1.0);
@@ -2209,10 +2209,10 @@ dweights(pdclusterbasis cb, uint tname, uint pardepth, void *data)
 
 	      /* Factor for Truncation, if necessary */
 	      if (tm && tm->blocks) {
-		if (tm->frobenius) {	// case Frobenius norm 
+		if (tm->frobenius) {	// case Frobenius norm
 		  norm = normfrob_fast_duniform(G->u, oro, oco);
 		}
-		else {		// case Euclidean norm 
+		else {		// case Euclidean norm
 		  norm = norm2_fast_duniform(G->u, oro, oco);
 		}
 		alpha = (norm > 0.0 ? 1.0 / norm : 1.0);
@@ -2307,10 +2307,10 @@ dweights(pdclusterbasis cb, uint tname, uint pardepth, void *data)
 	      clear_amatrix(What);
 	      /* Factor for Truncation, if necessary */
 	      if (tm && tm->blocks) {
-		if (tm->frobenius) {	// case Frobenius norm 
+		if (tm->frobenius) {	// case Frobenius norm
 		  norm = normfrob_fast_duniform(G->u, oro, oco);
 		}
-		else {		// case Euclidean norm 
+		else {		// case Euclidean norm
 		  norm = norm2_fast_duniform(G->u, oro, oco);
 		}
 		alpha = (norm > 0.0 ? 1.0 / norm : 1.0);
@@ -2371,10 +2371,10 @@ dweights(pdclusterbasis cb, uint tname, uint pardepth, void *data)
 
 	      /* Factor for Truncation, if necessary */
 	      if (tm && tm->blocks) {
-		if (tm->frobenius) {	// case Frobenius norm 
+		if (tm->frobenius) {	// case Frobenius norm
 		  norm = normfrob_fast_duniform(G->u, oro, oco);
 		}
-		else {		// case Euclidean norm 
+		else {		// case Euclidean norm
 		  norm = norm2_fast_duniform(G->u, oro, oco);
 		}
 		alpha = (norm > 0.0 ? 1.0 / norm : 1.0);
@@ -2856,7 +2856,7 @@ compress_dh2matrix_dh2matrix(pcdh2matrix G, bool rbortho, bool cbortho,
 
   compress_dweights(G, oro, oco, yro, yco, tm);
 
-  /* First copy S^{*} / S or compute  R_s * S^{*} / R_t * S  
+  /* First copy S^{*} / S or compute  R_s * S^{*} / R_t * S
      lets orientate by the h2compression and call it local weigths */
 
   if (cbortho == false) {
