@@ -10,6 +10,19 @@
 #include "basic.h"
 #include "krylov.h"
 
+static void
+print_avector_from_to(pcavector vec, uint from, uint to)
+{
+    uint i;
+    assert(from<to);
+    printf("\n( ");
+    for(i = from; i < to; i++){
+        printf("%e, ", getentry_avector(vec, i));
+    }
+    printf(")\n ");
+}
+
+
 /* ------------------------------------------------------------
  * Conjugated gradients method
  * ------------------------------------------------------------ */
@@ -185,24 +198,23 @@ solve_gmres_avector(void *A, addeval_t addeval_A, pcavector b, pavector x,
 {
 	pavector	rhat, r, q, tau;
 	pamatrix	qr;
-	real			norm, error;
+	real		norm, error;
 	uint			n, iter, k;
 
 	n = x->dim;
 
 	assert(b->dim == n);
 
-	rhat = new_avector(n);
-	r = new_avector(n);
-	q = new_avector(n);
-	qr = new_amatrix(n, kmax);
-	tau = new_avector(kmax);
+	rhat = new_zero_avector(n);
+	r = new_zero_avector(n);
+	q = new_zero_avector(n);
+	qr = new_zero_amatrix(n, kmax);
+	tau = new_zero_avector(kmax);
 
 	norm = norm2_avector(b);
 
 	init_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
 	error = residualnorm_gmres(rhat, k);
-
 	iter = 0;
 	while (error > eps * norm && iter + 1 != maxiter) {
 
@@ -212,8 +224,8 @@ solve_gmres_avector(void *A, addeval_t addeval_A, pcavector b, pavector x,
 
 		step_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
 		error = residualnorm_gmres(rhat, k);
-
 		iter++;
+
 	}
 	finish_gmres(addeval_A, A, b, x, rhat, q, &k, qr, tau);
 
@@ -296,6 +308,55 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
 {
 	pavector	rhat, r, q, tau;
 	pamatrix	qr;
+	real		norm, error;
+	uint			n, iter, k;
+
+	n = x->dim;
+
+	assert(b->dim == n);
+
+	rhat = new_zero_avector(n);
+	r = new_zero_avector(n);
+	q = new_zero_avector(n);
+	qr = new_zero_amatrix(n, kmax);
+	tau = new_zero_avector(kmax);
+
+	norm = norm2_avector(b);
+
+	init_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+	error = residualnorm_pgmres(rhat, k);
+	iter = 0;
+	while (error > eps * norm && iter + 1 != maxiter) {
+
+		if (k + 1 >= kmax) {
+			finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		}
+
+		step_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+		error = residualnorm_gmres(rhat, k);
+		iter++;
+
+	}
+	finish_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
+
+	del_avector(tau);
+	del_amatrix(qr);
+	del_avector(q);
+	del_avector(r);
+	del_avector(rhat);
+
+	return iter;
+}
+
+
+/*
+uint
+solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
+				 void *pdata, pcavector b, pavector x, real eps,
+				 uint maxiter, uint kmax)
+{
+	pavector	rhat, r, q, tau;
+	pamatrix	qr;
 	real			norm, error;
 	uint			n, iter, k;
 
@@ -310,7 +371,7 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
 	tau = new_avector(kmax);
 
 	copy_avector(b, r);
-//	prcd(pdata, r);			/* Counterproductive for right preconditioning???*/
+//	prcd(pdata, r);			// Counterproductive for right preconditioning???
 	norm = norm2_avector(r);
 
 	init_rpgmres(addeval_A, A, prcd, pdata, b, x, rhat, q, &k, qr, tau);
@@ -340,7 +401,7 @@ solve_rpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,
 
 
 
-
+*/
 
 uint
 solve_lpgmres_avector(void *A, addeval_t addeval_A, prcd_t prcd,

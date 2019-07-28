@@ -7,6 +7,7 @@
 #include "krylov.h"
 #include "factorizations.h"
 
+
 /* ------------------------------------------------------------
  * Vector iteration for norm2 and norm2diff estimation
  * ------------------------------------------------------------ */
@@ -739,7 +740,6 @@ finish_gmres(addeval_t addeval, void *matrix, pcavector b,	/* Right-hand side */
 	(void) matrix;
 	(void) b;
 	(void) q;
-
 	rhat_k = init_sub_avector(&tmp1, rhat, k, 0);
 	qr_k = init_sub_amatrix(&tmp2, qr, k, 0, k, 1);
 
@@ -788,9 +788,9 @@ solve_gmres(addeval_t addeval, void *A, pavector b, pavector x,
 	assert(x->dim == n);
 
 	qr = new_zero_amatrix(n, kmax);
-	rhat = new_avector(n);
-	q = new_avector(n);
-	tau = new_avector(kmax);
+	rhat = new_zero_avector(n);
+	q = new_zero_avector(n);
+	tau = new_zero_avector(kmax);
 	random_avector(x);
 
 	init_gmres(addeval, A, b, x, rhat, q, &kk, qr, tau);
@@ -859,12 +859,13 @@ init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavecto
        when done with x instead, the overall solution gets
        overwritten with zeros*/
 	r = init_column_avector(&tmp1, qr, 0);
-	xcopy = new_avector(x->dim);
 	copy_avector(b, r);
+	xcopy = new_zero_avector(x->dim);
 	copy_avector(x, xcopy);
 	prcd(pdata, xcopy);
 	addeval(-1.0, matrix, xcopy, r);
 	uninit_avector(r);
+	del_avector(xcopy);
 
 	/* Compute factorization */
 	qr_k = init_sub_amatrix(&tmp2, qr, qr->rows, 0, 1, 0);
@@ -883,7 +884,6 @@ init_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavecto
 
 	/* Set dimension */
 	*kk = 0;
-	del_avector(xcopy);
 }
 
 void
@@ -972,7 +972,6 @@ finish_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavec
 	(void) matrix;
 	(void) b;
 	(void) q;
-
 	rhat_k = init_sub_avector(&tmp1, rhat, k, 0);
 	qr_k = init_sub_amatrix(&tmp2, qr, k, 0, k, 1);
 
@@ -996,6 +995,7 @@ finish_rpgmres(addeval_t addeval, void *matrix, prcd_t prcd, void *pdata, pcavec
 	init_rpgmres(addeval, matrix, prcd, pdata, b, x, rhat, q, kk, qr, tau);
 	 //printf("\ninitialised again\n");
 	// print_avector(x);
+
 }
 
 

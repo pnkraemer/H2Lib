@@ -258,11 +258,12 @@ addeval_blockkernelmatrix_avector(field alpha, pcblockkernelmatrix bkm, pcavecto
 
         if(bkm->h2kmat){
             addeval_h2matrix_avector(alpha, bkm->h2kmat, top_subvec_src, top_subvec_trg);
+            addeval_amatrix_avector(alpha, bkm->pb, bottom_subvec_src, top_subvec_trg);
         }
         if(bkm->kmat){
             addeval_amatrix_avector(alpha, bkm->kmat, top_subvec_src, top_subvec_trg);
+            addeval_amatrix_avector(alpha, bkm->pb, bottom_subvec_src, top_subvec_trg);
         }
-        addeval_amatrix_avector(alpha, bkm->pb, bottom_subvec_src, top_subvec_trg);
         addevaltrans_amatrix_avector(alpha, bkm->pb, top_subvec_src, bottom_subvec_trg);
 
         copy_avector(copy_trg, trg);

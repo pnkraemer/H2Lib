@@ -21,6 +21,20 @@ All rights reserved, Nicholas Krämer, 2019
 #include "krylovsolvers.h"
 #include "tri2d.h"
 
+
+static void
+print_avector_from_to(pcavector vec, uint from, uint to)
+{
+    uint i;
+    assert(from<to);
+    printf("\n( ");
+    for(i = from; i < to; i++){
+        printf("%e, ", getentry_avector(vec, i));
+    }
+    printf(")\n ");
+}
+
+
 static void
 multi_sp(void *pdata, pavector r)
 {
@@ -28,6 +42,7 @@ multi_sp(void *pdata, pavector r)
     pavector rcopy = new_zero_avector(r->dim);
     assert(A->cols == rcopy->dim);
     addeval_sparsematrix_avector(1.0, A, r, rcopy);
+    clear_avector(r);
     copy_avector(rcopy, r);
     del_avector(rcopy);
 }
@@ -35,7 +50,7 @@ multi_sp(void *pdata, pavector r)
 
 field
 interpolant(field x, field y){
-	return x + y;
+	return x;
 }
 
 void
@@ -48,15 +63,14 @@ make_rhs(pavector rhsvec, pclustergeometry cg)
 	dim = rhsvec->dim;
 	assert((rhsvec->dim) == (cg->nidx + 3));
 
-	for(i = 0; i < dim - 3; i++)
-	{
-	pt = interpolant(cg->x[i][0], cg->x[i][1]);
-	setentry_avector(rhsvec, i, pt);
+	for(i = 0; i < dim - 3; i++){
+	   pt = interpolant(cg->x[i][0], cg->x[i][1]);
+	   setentry_avector(rhsvec, i, pt);
 	}
 
-	for(i=0; i<3; i++)
-	setentry_avector(rhsvec, dim - 3 + i, 0.0);
-
+	for(i=0; i<3; i++){
+	   setentry_avector(rhsvec, dim - 3 + i, 0.0);
+    }
 }
 
 static void
@@ -145,7 +159,7 @@ loadfromtxt_precon(uint N, uint n, char *filepath)
         setentry_sparsematrix(spm, rowidx, colidx, val);
     }
     for(uint i = 0; i < 3; i++){
-        setentry_sparsematrix(spm, N+i, N+i, 1.0);
+        setentry_sparsematrix(spm, N+i, N+i, 0.0);
     }
 
     del_sparsepattern(sp);
@@ -175,24 +189,23 @@ rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
 
 	rmse = 0;
 	for(i = 0; i < num_evalpts; i++){
+	    /* get random evaluation point*/
+	    do{
+		    pt[0] = FIELD_RAND();
+		    pt[1] = FIELD_RAND();
+	    }while(pt[0]>0 && pt[1]<0);   /* exclude bottom right corner */
 
-	/* get random evaluation point*/
-	do{
-		pt[0] = FIELD_RAND();
-		pt[1] = FIELD_RAND();
-	}while(pt[0]>0 && pt[1]<0);   /* exclude bottom right corner */
+	    /* assemble row of kernelmatrix*/
+	    for(j = 0; j < points; j++){
+	    	kij = km->kernel(pt, km->x[j], km->data);
+	    	setentry_avector(rowofkm, j, kij);
+	    }
+	    setentry_avector(rowofkm, points, 1.0);
+	    setentry_avector(rowofkm, points + 1, pt[0]);
+	    setentry_avector(rowofkm, points + 2, pt[1]);
 
-	/* assemble row of kernelmatrix*/
-	for(j = 0; j < points; j++){
-		kij = km->kernel(pt, km->x[j], km->data);
-		setentry_avector(rowofkm, j, kij);
-	}
-	setentry_avector(rowofkm, points, 1.0);
-	setentry_avector(rowofkm, points + 1, pt[0]);
-	setentry_avector(rowofkm, points + 2, pt[1]);
-
-	kij = dotprod_avector(rowofkm, sol) - interpolant(pt[0], pt[1]);
-	rmse += kij*kij;
+	    kij = dotprod_avector(rowofkm, sol) - interpolant(pt[0], pt[1]);
+	    rmse += kij*kij;
 	}
 
 	del_avector(rowofkm);
@@ -239,6 +252,7 @@ main(int argc, char **argv)
 	uint                gmres_kk, gmres_maxit;
 	real                error_fullgmres;
     real                h2compression_acc;
+
 	/* Parameters */
 	sw = new_stopwatch();
 	strcpy(filepath, argv[1]);    /* path to mesh and precon*/
@@ -251,11 +265,11 @@ main(int argc, char **argv)
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
 	evalpoints = 50000;           /* number of points for RMSE estimate*/
-	gmres_tol = atof(argv[5]);
+	gmres_tol = atof(argv[5]);    /* curiously, for ~1e-12, any gmres fails */
 	gmres_maxit = 5000;
-	gmres_kk = 20;
+	gmres_kk = 25;
 	cpos = 1;
-    h2compression_acc = 1e-2 * gmres_tol;
+    h2compression_acc = 1e-3 * gmres_tol;
 
 	(void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
 	start_stopwatch(sw);
@@ -307,6 +321,7 @@ main(int argc, char **argv)
 	start_stopwatch(sw);
 	bkm_uncompressed = build_from_kernelmatrix_h2_blockkernelmatrix(km, broot, cb);
     bkm = compress_blockkernelmatrix(bkm_uncompressed, h2compression_acc);
+//    bkm_full = build_from_kernelmatrix_full_blockkernelmatrix(km);
 	t_setup = stop_stopwatch(sw);
 	sz = getsize_blockkernelmatrix(bkm);
 	(void) printf("\t%.2f seconds\n"
@@ -321,6 +336,7 @@ main(int argc, char **argv)
 	error = norm2_avector(rhs);
 	x0 = new_zero_avector(points + dim + 1);
 	iter = solve_rpgmres_blockkernelmatrix_avector(bkm, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
+    //print_avector_from_to(x0, x0->dim-3, x0->dim);
 	sol = new_zero_avector(points + dim + 1);
 	addeval_sparsematrix_avector(1.0, precon_sp, x0, sol);
 	addeval_blockkernelmatrix_avector(-1.0, bkm, sol, rhs);
@@ -328,7 +344,7 @@ main(int argc, char **argv)
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
 	(void) printf("\t%u GMRES iterations with the H2-matrix\n", iter);
-	(void) printf("\t%.1e relative error", error);
+	(void) printf("\t%.12e relative error", error);
 
 
 
@@ -368,10 +384,13 @@ main(int argc, char **argv)
 		clear_avector(x0);
 		make_rhs(rhs, cg);
 		error = norm2_avector(rhs);
+		iter = solve_rpgmres_blockkernelmatrix_avector(bkm_full, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
 //		iter = solve_rpgmres_amatrix_avector(fullmat, multi_sp, precon_sp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
-		iter = solve_gmres_amatrix_avector(kp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
-	// print_avector(x0);
-		addeval_amatrix_avector(-1.0, kp, x0, rhs);
+//		iter = solve_gmres_amatrix_avector(kp, rhs, x0, gmres_tol, gmres_maxit, gmres_kk);
+    //    print_avector_from_to(x0, x0->dim-3, x0->dim);
+        clear_avector(sol);
+        addeval_sparsematrix_avector(1.0, precon_sp, x0, sol);
+		addeval_amatrix_avector(-1.0, fullmat, sol, rhs);
 		error_fullgmres = norm2_avector(rhs)/error;
 		t_setup = stop_stopwatch(sw);
 		(void) printf("\t%.2f seconds\n", t_setup);
@@ -382,7 +401,7 @@ main(int argc, char **argv)
 			printf(" ->GOOD!\n");
 		}
 		(void) printf("\t%u GMRES iterations with the full matrix\n", iter);
-		(void) printf("\t%.1e relative GMRES error", error_fullgmres);
+		(void) printf("\t%.12e relative GMRES error", error_fullgmres);
 		if(error_fullgmres > gmres_tol){
 			printf(" ->BAD!");
 		} else{
@@ -391,21 +410,21 @@ main(int argc, char **argv)
 		(void) printf("\n--------------------------------------------------");
 
 		addeval_amatrix_avector(1.0, precon_full, x0, sol2);
+		del_blockkernelmatrix(bkm_full);
 		del_avector(testvec);
 		del_avector(res_a);
 		del_avector(res_h2);
 		del_amatrix(fullmat);
 		del_amatrix(precon_full);
 		del_amatrix(kp);
-		del_blockkernelmatrix(bkm_full);
 	}
 
 
 	(void) printf("\nApproximating RMSE");
 	start_stopwatch(sw);
+	currentRelError = rmse_onthefly(sol, km, evalpoints);
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\n\t%.2f seconds\n", t_setup);
-	currentRelError = rmse_onthefly(sol, km, evalpoints);
 	(void) printf("\t%.2e rmse\n", currentRelError);
 	if(error > gmres_tol){
 		currentRelError = rmse_onthefly(sol2, km, evalpoints);
@@ -419,8 +438,8 @@ main(int argc, char **argv)
 	if(bkm->h2kmat==false)
 		del_clusterbasis(cb);
 
-	del_blockkernelmatrix(bkm_uncompressed);
 	del_blockkernelmatrix(bkm);
+	del_blockkernelmatrix(bkm_uncompressed);
 	del_avector(rhs);
 	del_avector(x0);
 	del_avector(sol);
