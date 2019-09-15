@@ -1,20 +1,10 @@
 /*
-Run with either:
-
-./lshape/clean_lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15 1e-5
-./lshape/clean_lshape_gmres /home/kraemer/Programmieren/txts/demlow/ 129 56 15
-
-All rights reserved, Nicholas Krämer, 2019
-*/
-
-
-/* Use it as:
+ * All rights reserved, Nicholas Krämer, 2019
+ * Use it as:
  * 
- * ./lshape/clean_lshape_gmres <path_to_mesh> <path_to_precon> <local_rank> <gmres_acc>
+ * ./lshape/clean_lshape_gmres <path_to_mesh> <path_to_precon> <path_to_evalpts> <local_hmatrix_rank> <gmres_acc>
  * 
- * 
- * 
- * 
+ * THIS SCRIPT IS 2D ONLY
  */
 
 #include <stdio.h>
@@ -30,6 +20,7 @@ All rights reserved, Nicholas Krämer, 2019
 #include "blockkernelmatrix.h"
 #include "krylovsolvers.h"
 #include "tri2d.h"
+
 
 
 static void
@@ -84,21 +75,17 @@ make_rhs(pavector rhsvec, pclustergeometry cg)
 }
 
 static void
-loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *string)
+loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *filepath)
 {
 	uint points;
-	char filename[50], filepath[250];
 	FILE *meshfile;
 
 	points = km->points;
-	sprintf(filename, "mesh/mesh_N%u.txt", points);
-	strcpy(filepath, string);
-	strcat(filepath, filename);
 
 	meshfile = fopen(filepath, "r");
 	if(meshfile == NULL){
-	printf("Error reading file\n");
-	exit(0);
+		printf("Error reading file\n");
+		exit(0);
 	}
 	for(uint i = 0; i < points; i++){
 		fscanf(meshfile, "%lf ", &(km->x[i][0]));
@@ -109,60 +96,74 @@ loadfromtxt_mesh(pkernelmatrix km, bool print_yes, char *string)
 	fclose(meshfile);
 }
 
+
+
 HEADER_PREFIX psparsematrix
-loadfromtxt_precon(uint N, uint n, char *filepath)
+loadfromtxt_precon(uint N, char *filepath)
 {
     real val;
-    uint colidx, rowidx;
+    real colidx, rowidx;
     uint i;
-    char strVals[150], strRowIdx[150], strColIdx[150];
-    char filepath_val[250], filepath_row[250], filepath_col[250];
     pavector preconval, preconrow, preconcol;
     psparsepattern sp;
     psparsematrix spm;
+    char buffer[100];
+    uint num_elements_precon;
+    uint count;
 
-    preconval = new_avector(n*N);
-    preconrow = new_avector(n*N);
-    preconcol = new_avector(n*N);
+    FILE *myFile;
+    myFile = fopen(filepath, "r");
 
-    strcpy(filepath_val, filepath);
-    strcpy(filepath_row, filepath);
-    strcpy(filepath_col, filepath);
-    sprintf(strVals, "precon/precon_val_N%d_n%d.txt", N, n);
-    sprintf(strRowIdx, "precon/precon_row_N%d_n%d.txt", N, n);
-    sprintf(strColIdx, "precon/precon_col_N%d_n%d.txt", N, n);
-    strcat(filepath_val, strVals);
-    strcat(filepath_row, strRowIdx);
-    strcat(filepath_col, strColIdx);
-
-    FILE *myFileVals, *myFileRowIdx, *myFileColIdx;
-    myFileVals = fopen(filepath_val, "r");
-    myFileRowIdx = fopen(filepath_row, "r");
-    myFileColIdx = fopen(filepath_col, "r");
-    if(myFileRowIdx == NULL || myFileColIdx == NULL || myFileVals == NULL){
+    if(myFile == NULL){
         printf("Error reading file\n");
         exit(0);
     }
+    // Throw away the explanational line, i.e. the first one
+    fgets(buffer, 100, myFile);
+
+    // Count number of elements
+    count = 0;
+	while (fscanf(myFile, "%lf", &val) != EOF)
+	{
+		count++;
+	}
+	num_elements_precon = (uint)count / 3.0;
+	fclose(myFile);
+
+
+    myFile = fopen(filepath, "r");
+    if(myFile == NULL){
+        printf("Error reading file\n");
+        exit(0);
+    }
+    fgets(buffer, 100, myFile);
+
+
+    preconval = new_avector(num_elements_precon);
+    preconrow = new_avector(num_elements_precon);
+    preconcol = new_avector(num_elements_precon);
+
 
     sp = new_sparsepattern(N + 3, N + 3);
-    for(i = 0; i < n*N; i++){
-            fscanf(myFileVals, "%lf ", &val);
-            fscanf(myFileRowIdx, "%u ", &rowidx);
-            fscanf(myFileColIdx, "%u ", &colidx);
-            setentry_avector(preconval, i, val);
-            setentry_avector(preconrow, i, rowidx);
-            setentry_avector(preconcol, i, colidx);
-            addnz_sparsepattern(sp, rowidx, colidx);
+    i = 0;
+    for(i = 0; i < num_elements_precon; i++){
+    	fscanf(myFile, "%lf", &val);
+    	fscanf(myFile, "%lf", &rowidx);
+    	fscanf(myFile, "%lf", &colidx);
+
+        setentry_avector(preconval, i, val);
+        setentry_avector(preconrow, i, (uint)rowidx);
+        setentry_avector(preconcol, i, (uint)colidx);
+        addnz_sparsepattern(sp, rowidx, colidx);
     }
+
     for(uint i = 0; i < 3; i++){
         addnz_sparsepattern(sp, N + i, N + i);
     }
-    fclose(myFileVals);
-    fclose(myFileColIdx);
-    fclose(myFileRowIdx);
+    fclose(myFile);
 
     spm = new_zero_sparsematrix(sp);
-    for(i = 0; i < n*N; i++){
+    for(i = 0; i < num_elements_precon; i++){
         val = getentry_avector(preconval, i);
         rowidx = getentry_avector(preconrow, i);
         colidx = getentry_avector(preconcol, i);
@@ -181,7 +182,7 @@ loadfromtxt_precon(uint N, uint n, char *filepath)
 
 
 INLINE_PREFIX real /* Not happy with the name of the function */
-rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
+rmse_onthefly(pavector sol, pkernelmatrix km, char *path_to_evalpts){
 
 	pavector    rowofkm;
 	uint        dim, points;
@@ -189,21 +190,43 @@ rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
 	uint        i, j;
 	real        kij;
 	real        pt[2];
+	FILE 		*centers;
+	uint 		count;
+	bool 		print_yes;
+	pkernelmatrix kmeval;
+	real 		dum;
+	uint num_evalpts;
+
+
+	dim = 2;
+
+	 //Reading number of evaluation points from file...
+	centers = fopen(path_to_evalpts, "r");
+	count = 0;
+	while (fscanf(centers, "%lf", &dum) != EOF)
+	{
+		count++;
+	}
+	num_evalpts = (long int)count/dim;
+	fclose(centers);
+
+
+	kmeval = new_kernelmatrix(dim, num_evalpts, km->m, km->cpos);
+	print_yes = 0;
+	loadfromtxt_mesh(kmeval, print_yes, path_to_evalpts);
+
 
 	points = km->points;
-	dim = km->dim;
-	assert(dim == 2);       /* script not ready for higher dimensions yet */
 	rowofkm = new_avector(points + 1 + dim);
 	assert(rowofkm->dim == sol->dim);
 
 
 	rmse = 0;
 	for(i = 0; i < num_evalpts; i++){
-	    /* get random evaluation point*/
-	    do{
-		    pt[0] = FIELD_RAND();
-		    pt[1] = FIELD_RAND();
-	    }while(pt[0]>0 && pt[1]<0);   /* exclude bottom right corner */
+
+		// get evaluation point
+		pt[0] = kmeval->x[i][0];
+		pt[1] = kmeval->x[i][1];
 
 	    /* assemble row of kernelmatrix*/
 	    for(j = 0; j < points; j++){
@@ -219,9 +242,16 @@ rmse_onthefly(pavector sol, pkernelmatrix km, uint num_evalpts){
 	}
 
 	del_avector(rowofkm);
+	del_kernelmatrix(kmeval);
+
 	return REAL_SQRT(rmse / (1.0 * num_evalpts));
 }
 
+/* Usage:
+ *
+ * ./lshape/clean_lshape_gmres <path_to_mesh> <path_to_precon> <path_to_evalpts_for_rmse> <local_hmatrix_rank> <gmres_acc>
+ *
+ */
 int
 main(int argc, char **argv)
 {
@@ -251,37 +281,56 @@ main(int argc, char **argv)
 	real                eta;
 	real                t_setup;
 	uint                i;
-	uint                n;
 	uint                iter;
 	real                error;
 	bool                print_yes;
-	uint                evalpoints;
 	real                currentRelError;
-	char                filepath[250];
+	char                path_to_mesh[250], path_to_precon[250], path_to_evalpts[250];
 	real                gmres_tol;
 	uint                gmres_kk, gmres_maxit;
 	real                error_fullgmres;
     real                h2compression_acc;
 
+    FILE 				*centers;
+    real 				dummyvar;
+    uint 				count;
+
 	/* Parameters */
 	sw = new_stopwatch();
-	strcpy(filepath, argv[1]);    /* path to mesh and precon*/
-	points = atoi(argv[2]);       /* number of points*/
-	n = atoi(argv[3]);            /* number of neighbours */
+	strcpy(path_to_mesh, argv[1]);    /* path to mesh*/
+	strcpy(path_to_precon, argv[2]);    /* path to preconditioner*/
+	strcpy(path_to_evalpts, argv[3]);    /* path to evaluation pointset*/
 	m = atoi(argv[4]);            /* interpolation order */
-	assert(points>0 && n > 0 && m > 0);
+	assert(m > 0);
 	lsz = 2*m*m;                  /* leafsize prop. to interpolation order */
 	eta = 2.0;                    /* generic admissibility condition */
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
-	evalpoints = 50000;           /* number of points for RMSE estimate*/
-	gmres_tol = atof(argv[5]);    /* curiously, for ~1e-12, any gmres fails */
+	gmres_tol = atof(argv[5]);    /* curiously: for ~1e-12, any gmres fails */
+
+	// Some internal variables
 	gmres_maxit = 5000;
 	gmres_kk = 25;
 	cpos = 1;
     h2compression_acc = 1e-3 * gmres_tol;
 
-	(void) printf("\nCreating kernelmatrix object for %u points (%u neighbours), interpolation order %u\n", points, n, m);
+
+	(void) printf("\nReading number of evaluation points from file...");
+	centers = fopen(path_to_mesh, "r");
+	count = 0;
+	while (fscanf(centers, "%lf", &dummyvar) != EOF)
+	{
+		count++;
+	}
+	points = (long int)count/dim;
+	fclose(centers);
+
+
+
+
+
+
+	(void) printf("\nCreating kernelmatrix object for %u points, interpolation order %u\n", points, m);
 	start_stopwatch(sw);
 	km = new_kernelmatrix(dim, points, m, cpos);
 	km->kernel = tps_kernel_2d; /* Choose 2d-kernel*/
@@ -292,7 +341,7 @@ main(int argc, char **argv)
 	(void) printf("Loading mesh from txt file\n");
 	start_stopwatch(sw);
 	print_yes = 0;
-	loadfromtxt_mesh(km, print_yes, filepath);
+	loadfromtxt_mesh(km, print_yes, path_to_mesh);
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\t%.2f seconds\n", t_setup);
 
@@ -301,7 +350,7 @@ main(int argc, char **argv)
 	cg = creategeometry_kernelmatrix(km);
 	idx = (uint *) allocmem(sizeof(uint) * (points));
 	for(i=0; i<points; i++)
-	idx[i] = i;
+		idx[i] = i;
 	root = build_cluster(cg, points, idx, lsz, H2_ADAPTIVE);
 	broot = build_strict_block(root, root, &eta, admissible_2_cluster);
 	t_setup = stop_stopwatch(sw);
@@ -319,7 +368,7 @@ main(int argc, char **argv)
 
 	(void) printf("Loading preconditioner\n");
 	start_stopwatch(sw);
-	precon_sp = loadfromtxt_precon(points, n, filepath);
+	precon_sp = loadfromtxt_precon(points, path_to_precon);
 	t_setup = stop_stopwatch(sw);
 	sz = getsize_sparsematrix(precon_sp);
 	(void) printf("\t%.2f seconds\n"
@@ -429,15 +478,14 @@ main(int argc, char **argv)
 		del_amatrix(kp);
 	}
 
-
 	(void) printf("\nApproximating RMSE");
 	start_stopwatch(sw);
-	currentRelError = rmse_onthefly(sol, km, evalpoints);
+	currentRelError = rmse_onthefly(sol, km, path_to_evalpts);
 	t_setup = stop_stopwatch(sw);
 	(void) printf("\n\t%.2f seconds\n", t_setup);
 	(void) printf("\t%.2e rmse\n", currentRelError);
 	if(error > gmres_tol){
-		currentRelError = rmse_onthefly(sol2, km, evalpoints);
+		currentRelError = rmse_onthefly(sol2, km, path_to_evalpts);
 		(void) printf("\t(%.2e rmse with full matrix)\n\n", currentRelError);
 	}
 
