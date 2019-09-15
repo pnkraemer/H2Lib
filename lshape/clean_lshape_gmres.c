@@ -1,11 +1,21 @@
 /*
 Run with either:
 
-./lshape/lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15 1e-5
-./lshape/lshape_gmres /home/kraemer/Programmieren/txts/demlow/ 129 56 15
+./lshape/clean_lshape_gmres /home/kraemer/Programmieren/txts/uniform_lshape/ 21 23 15 1e-5
+./lshape/clean_lshape_gmres /home/kraemer/Programmieren/txts/demlow/ 129 56 15
 
 All rights reserved, Nicholas Krämer, 2019
 */
+
+
+/* Use it as:
+ * 
+ * ./lshape/clean_lshape_gmres <path_to_mesh> <path_to_precon> <local_rank> <gmres_acc>
+ * 
+ * 
+ * 
+ * 
+ */
 
 #include <stdio.h>
 #include <string.h>
