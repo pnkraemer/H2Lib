@@ -19,6 +19,9 @@ tps_kernel_1d(const real *xx, const real *yy, void *data);
 HEADER_PREFIX field
 exp_kernel_1d(const real *xx, const real *yy, void *data);
 
+HEADER_PREFIX field
+matern32_kernel(const real *xx, const real *yy, void *data);
+
 
 
 HEADER_PREFIX field

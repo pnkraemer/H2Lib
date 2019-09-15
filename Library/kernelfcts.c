@@ -20,6 +20,20 @@ exp_kernel_1d(const real *xx, const real *yy, void *data)
 }
 
 field
+matern32_kernel_1d(const real *xx, const real *yy, void *data)
+{
+    real norm2;
+
+    (void) data;
+
+    norm2 = REAL_SQR(xx[0] - yy[0]); //+ REAL_SQR(xx[1] - yy[1]);
+
+    return (1 + REAL_SQRT(3) * norm2) * REAL_EXP(-REAL_SQRT(3) * norm2);
+}
+
+
+
+field
 tps_kernel_1d(const real *xx, const real *yy, void *data)
 {
     real norm2;

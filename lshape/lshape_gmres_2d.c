@@ -195,7 +195,7 @@ rmse_onthefly(pavector sol, pkernelmatrix km, char *path_to_evalpts){
 	bool 		print_yes;
 	pkernelmatrix kmeval;
 	real 		dum;
-	uint num_evalpts;
+	uint 		num_evalpts;
 
 
 	dim = 2;
@@ -306,7 +306,7 @@ main(int argc, char **argv)
 	eta = 2.0;                    /* generic admissibility condition */
 //  assert(points<24000);         /* 24000 is all one can do with 8GB of RAM*/
 	dim = 2;                      /* this script is 2D only*/
-	gmres_tol = atof(argv[5]);    /* curiously: for ~1e-12, any gmres fails */
+	gmres_tol = atof(argv[5]);    
 
 	// Some internal variables
 	gmres_maxit = 5000;
